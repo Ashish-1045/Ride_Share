@@ -1,9 +1,23 @@
 import React from 'react'
+import { Route,Routes } from 'react-router-dom';
+import Home from './pages/Home';
+import CaptainLogin from "./pages/CaptainLogin";
+import CaptainSignup from "./pages/CaptainSignup";
+import UserLogin from "./pages/UserLogin";
+import UserSignup from "./pages/UserSignup";
 
 const App = () => {
   return (
-    <div className='bg-blue-100'>App</div>
-  )
+    <div>
+      <Routes>
+         <Route path = "/" element= {<Home/>} />
+         <Route path = "/CaptainLogin" element= {<CaptainLogin/>} />
+          <Route path = "/CaptainSignup" element= {<CaptainSignup/>} />
+          <Route path = "/UserLogin" element= {<UserLogin/>} />
+          <Route path = "/UserSignup" element= {<UserSignup/>} />
+      </Routes>
+    </div>
+  );
 }
 
 export default App
