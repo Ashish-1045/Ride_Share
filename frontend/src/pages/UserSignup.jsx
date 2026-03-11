@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Link } from "react-router-dom";
 const UserLogin = () => {
  
@@ -66,3 +67,14 @@ const UserLogin = () => {
 };
 
 export default UserLogin;
+=======
+import React from 'react'
+
+const UserSignup = () => {
+  return (
+    <div>UserSignup</div>
+  )
+}
+
+export default UserSignup
+>>>>>>> 514409827b9ebbbb970c5016f240658e39762552

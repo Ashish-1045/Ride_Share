@@ -6,8 +6,13 @@ const Home = () => {
       <div className=" bg-cover bg-center bg-[url('https://images.unsplash.com/photo-1557404763-69708cd8b9ce?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fHRyYWZpY3xlbnwwfHwwfHx8MA%3D%3D')]  h-screen pt-8 flex justify-between flex-col w-full bg-pink-300 ">
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
+<<<<<<< HEAD
           alt="U Logo"
           className="w-16 ml-8"
+=======
+          alt="RideShare Logo"
+          className="w-16 ml-8git add ."
+>>>>>>> 514409827b9ebbbb970c5016f240658e39762552
         />
         <div className="bg-white w-full  py-8 px-3 shadow-lg flex flex-col items-center gap-4">
           <h1 className="text-4xl font-bold text-center ">

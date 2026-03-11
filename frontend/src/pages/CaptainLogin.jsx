@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Link } from "react-router-dom";
 import React, { useState } from "react";
 
@@ -71,3 +72,14 @@ const CaptainLogin = () => {
 };
 
 export default CaptainLogin;
+=======
+import React from 'react'
+
+const  CaptainLogin = () => {
+  return (
+    <div className="CaptainLogin">Captain Login Page</div>
+  )
+}
+
+export default  CaptainLogin
+>>>>>>> 514409827b9ebbbb970c5016f240658e39762552
