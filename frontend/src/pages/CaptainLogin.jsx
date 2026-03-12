@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { Link } from "react-router-dom";
 import React, { useState } from "react";
 
@@ -22,7 +21,7 @@ const CaptainLogin = () => {
         <img
           src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOqOs_B9fC9jHPVxieoS8AbjT4HbOqOVMv4A&s"
           alt="Uber Logo"
-          className="w-16 mb-8 mr-75"
+          className="w-16 mb-8 mr-60"
         />
         <form
           onSubmit={Submithandler}
@@ -72,14 +71,3 @@ const CaptainLogin = () => {
 };
 
 export default CaptainLogin;
-=======
-import React from 'react'
-
-const  CaptainLogin = () => {
-  return (
-    <div className="CaptainLogin">Captain Login Page</div>
-  )
-}
-
-export default  CaptainLogin
->>>>>>> 514409827b9ebbbb970c5016f240658e39762552

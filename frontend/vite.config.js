@@ -13,13 +13,12 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-<<<<<<< HEAD
+
   server: {
     watch: {
       usePolling: true,
     },
   },
 });
-=======
-});
->>>>>>> 514409827b9ebbbb970c5016f240658e39762552
+
+
