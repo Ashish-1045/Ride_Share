@@ -77,7 +77,7 @@ const CaptainSignup = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
           <button className="bg-black text-white py-2 px-4 font-medium hover:scale-95 mt-6 w-full">
-            Sign Up
+            Create Account
           </button>
         </form>
         <p className="text-center text-sm text-gray-500 mt-4">
