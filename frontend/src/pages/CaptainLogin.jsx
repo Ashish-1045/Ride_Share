@@ -1,22 +1,48 @@
+/* eslint-disable no-unused-vars */
 import { Link } from "react-router-dom";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useContext } from "react";
+import { CaptainDataContext } from "../context/CaptainContext";
 
 const CaptainLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [Captaindata, setCaptaindata] = useState({});
+  const navigate = useNavigate();
+
 
   const Submithandler = (e) => {
     e.preventDefault();
     setEmail("");
     setPassword("");
-    setCaptaindata({ email: email, password: password });
-  
+    const captainData = {
+      email: email,
+      password: password,
+    };
+
+  try{    
+  const response = axios.post(`${import.meta.env.VITE_BASE_URL}/captains/login`, captainData, {
+  }).then((response) => {
+    if (response.status === 200){
+      const data = response.data;
+      setCaptain(data.captain);
+      localStorage.setItem("token", data.token);
+      navigate("/CaptainHome");
+  }
+  });
+    }catch (error) {
+      console.error("Login failed:", error);
+    }
   };
+
+  const {captain, setCaptain} = useContext(CaptainDataContext);
+
+
+
+  
   return (
-    
     <div className="flex flex-col items-center justify-between min-h-screen bg-gray-100">
-      
       <div className=" w-full p-7 flex flex-col items-center justify-center">
         <img
           src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOqOs_B9fC9jHPVxieoS8AbjT4HbOqOVMv4A&s"

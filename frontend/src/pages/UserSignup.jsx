@@ -37,9 +37,6 @@ const UserSignup = () => {
         navigate("/Home");
       
     }
-  
-  
-   
     setfirstName("");
     setlastName("");
     setEmail("");
