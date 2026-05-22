@@ -6,7 +6,9 @@ import gsap from "gsap";
 import { useRef } from "react";
 import "remixicon/fonts/remixicon.css";
 import LocationSearchPanel from "../Components/LocationSearchPanel";
-
+import Car from "../assets/Car.png";
+import Auto from "../assets/Auto.png";
+import Bike from "../assets/Bike.png";
 
 const Home = () => {
   const [pickupLocation, setPickupLocation] = useState("");
@@ -60,10 +62,11 @@ const Home = () => {
 
       <div className=" w-full h-screen flex flex-col justify-end absolute bottom-0  ">
         <div className="h[30%] p-5 bg-white bottom-0 w-full relative">
-          <h5 
-          onClick ={()=> setPanelOpen(false)}
-          ref={panalClosRef} 
-          className="flex absolute top-6 right-7 items-center gap-2 text-gray-900 text-2xl font-bold opacity-0 cursor-pointer">
+          <h5
+            onClick={() => setPanelOpen(false)}
+            ref={panalClosRef}
+            className="flex absolute top-6 right-7 items-center gap-2 text-gray-900 text-2xl font-bold opacity-0 cursor-pointer"
+          >
             <i className="ri-arrow-down-wide-line"></i>
           </h5>
           <h3 className="text-3xl font-semibold">Find a trip </h3>
@@ -96,6 +99,82 @@ const Home = () => {
 
         <div ref={panalRef} className="  w-screen bg-white">
           <LocationSearchPanel />
+        </div>
+
+        <div className="bg-white fixed bottom-0  w-full p-2 space-y-3 translate-y-full">
+          <div className="flex items-center justify-between border-black border-2 hover:border-3  rounded-xl p-3 w-full ">
+            <img
+              className="h-18 object-contain "
+              src={Car}
+              alt="car"
+            />
+
+            <div className="flex-1 ml-4">
+              <h4 className="text-lg font-semibold">
+                Go Uber{" "}
+                <span>
+                  <i className="ri-user-3-fill text-lg">4</i>
+                </span>
+              </h4>
+
+              <h5 className="text-sm font-medium text-gray-700">2 min away</h5>
+
+              <p className="text-sm text-gray-500">Affordable, compact rides</p>
+            </div>
+
+            <h2 className="text-xl font-bold">₹190.20</h2>
+          </div>
+
+          <div className="flex items-center justify-between  border-black border-2 hover:border-3  rounded-xl p-3 w-full ">
+            <img
+              className="h-13 object-contain"
+              src={Bike}
+              alt="bike"
+            />
+
+            <div className="flex-1 ml-4">
+              <h4 className="text-lg font-semibold">
+                Go Uber{" "}
+                <span>
+                  <i className="ri-user-3-fill">1</i>
+                </span>
+              </h4>
+
+              <h5 className="text-sm font-medium text-gray-700">3 min away</h5>
+
+              <p className="text-sm text-gray-500">
+                Affordable, Motorcycle rides
+              </p>
+            </div>
+
+            <h2 className="text-xl font-bold">₹65.08</h2>
+          </div>
+          <div className="flex items-center justify-between  border-black border-2 hover:border-3  rounded-xl p-3 w-full">
+            <img
+              className="h-16 object-contain"
+              src={Auto}  
+
+
+
+
+              alt="Auto"
+            />
+
+            <div className="flex-1 ml-4">
+              <h4 className="text-lg font-semibold">
+                Go Uber{" "}
+                <span>
+                  <i className="ri-user-3-fill text-lg">3</i>
+                </span>
+              </h4>
+
+              <h5 className="text-sm font-medium text-gray-700">5 min away</h5>
+
+              <p className="text-sm text-gray-500">Affordable, Auto rides</p>
+            </div>
+
+            <h2 className="text-xl font-bold">₹124.18</h2>
+          </div>
         </div>
       </div>
     </div>
