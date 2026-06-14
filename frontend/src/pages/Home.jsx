@@ -9,6 +9,8 @@ import LocationSearchPanel from "../Components/LocationSearchPanel";
 import VechielPanal from "../Components/VechielPanal";
 import ConfirmRidePanal from "../Components/ConfirmRidePanal";
 import homeImg from "../assets/HomeImg.gif";
+import LookingForDriver from "../Components/LookingForDriver";
+import WaitingForDriver from "../Components/WaitingForDriver";
 
 const Home = () => {
   const [pickupLocation, setPickupLocation] = useState("");
@@ -16,10 +18,14 @@ const Home = () => {
   const [panalOpen, setPanelOpen] = useState(false);
   const vechielPanalRef = useRef(null)
   const panalRef = useRef(null);
-  const confirmPanalRef = useRef(null);
-  const [confirmPanal, setConfirmPanal] = useState(false);
+  const vechielFoundRef = useRef(null);
+  const WaitingForDriverRef = useRef(null);
+  const confirmRidePanalRef = useRef(null);
+  const [confirmRidePanal, setConfirmRidePanal] = useState(false);
   const panalClosRef = useRef(null);
   const [vechielPanal, setVechielPanal] = useState(false);
+  const [vechielFound, setVechielFound] = useState(false);
+  const [waitingForDriver, setWaitingForDriver] = useState(false);
 
   const SubmitHandler = (e) => {
     e.preventDefault();
@@ -63,19 +69,46 @@ const Home = () => {
     
 
   useGSAP(() => {
-    if (confirmPanal) {
-      gsap.to(confirmPanalRef.current, {
+    if (confirmRidePanal) {
+      gsap.to(confirmRidePanalRef.current, {
         y: 0,
         duration: 0.3,
       });
     } else {
-      gsap.to(confirmPanalRef.current, {
+      gsap.to(confirmRidePanalRef.current, {
         y: "100%",
         duration: 0.3,
       });
     }
-  }, [confirmPanal]);
+  }, [confirmRidePanal]);
 
+    useGSAP(() => {
+      if (vechielFound) {
+        gsap.to(vechielFoundRef.current, {
+          y: 0,
+          duration: 0.3,
+        });
+      } else {
+        gsap.to(vechielFoundRef.current, {
+          y: "100%",
+          duration: 0.3,
+        });
+      }
+    }, [vechielFound]);
+
+        useGSAP(() => {
+          if (waitingForDriver) {
+            gsap.to(WaitingForDriverRef.current, {
+              y: 0,
+              duration: 0.3,
+            });
+          } else {
+            gsap.to(WaitingForDriverRef.current, {
+              y: "100%",
+              duration: 0.3,
+            });
+          }
+        }, [waitingForDriver]);
 
 
   
@@ -148,19 +181,31 @@ const Home = () => {
         >
           <VechielPanal
             setVechielPanal={setVechielPanal}
-            setConfirmPanal={setConfirmPanal}
+            setConfirmRidePanal={setConfirmRidePanal}
           />
         </div>
 
         <div
-          ref={confirmPanalRef}
+          ref={confirmRidePanalRef}
           className="ref= bg-white fixed bottom-0  w-full p-2 space-y-3  translate-y-full"
         >
           <ConfirmRidePanal
-             setVechielPanal={setVechielPanal}
-            setConfirmPanal={setConfirmPanal}
-            setPanelOpen={setPanelOpen}
+            setvechielFound={setVechielFound}
+            setConfirmRidePanal={setConfirmRidePanal}
           />
+        </div>
+        <div
+          ref={vechielFoundRef}
+          className="ref= bg-white fixed bottom-0  w-full p-2 space-y-3  translate-y-full"
+        >
+          <LookingForDriver setvechielFound={setVechielFound} />
+        </div>
+
+         <div
+          ref={WaitingForDriverRef}
+          className="ref= bg-white fixed bottom-0  w-full p-2 space-y-3 translate-y-full"
+        >
+          <WaitingForDriver setWaitingForDriver={setWaitingForDriver} />
         </div>
       </div>
     </div>

@@ -1,36 +1,23 @@
 import React from 'react'
 import Car from "../assets/Car.png"
-// import { useRef } from 'react';
-// import gsap from 'gsap';
-// import LookingForDriver from './LookingForDriver';
 
 
-const ConfirmRidePanal = (props) => {
-  //  const closeref = useRef(null);
-
-  // const handleClose = () => {
-  //   gsap.to(closeref.current, {
-  //     opacity: 0,
-  //     duration: 0.1,
-  //     y: "100%",
-  //     onComplete: () => {
-  //       props.setConfirmRidePanal(false);
-  //     },
-  //   });
-  // };
-
+const LookingForDriver = (props) => {
+  
   return (
     <div className="bg-white w-full ">
-      <h3
-        onClick={() => props.setConfirmRidePanal(false)}
-        className="text-2xl font-semibold flex items-center gap-2 w-full  justify-center mb-0 cursor-pointer "
-      >
+      <h3 onClick ={() => props.setvechielFound(false)}
+      className="text-2xl font-semibold flex items-center gap-2 w-full  justify-center mb-0 cursor-pointer ">
         <i className="text-gray-300 ri-arrow-down-wide-fill"></i>
       </h3>
 
       <div className="flex items-center justify-start gap-2 ml-4 w-full">
-        <i  className=" text-2xl font-bold ri-riding-line"></i>
-        <h3 className="text-2xl font-bold text-center ">Confirm Your Ride</h3>
+        <img
+          className="h-8 object-contain mb-3"
+          src="https://cdn-icons-png.flaticon.com/512/747/747376.png"
+          alt="confirm"
+        />
+        <h3 className="text-2xl font-bold text-center ">Looking for Driver</h3>
       </div>
 
       <div className=" w-full flex items-center justify-center rounded-lg mb-4">
@@ -73,19 +60,9 @@ const ConfirmRidePanal = (props) => {
           </div>
         </div>
       </div>
-
-      <button
-        onClick={() => {
-          props.setConfirmRidePanal(false);
-          props.setvechielFound(true);
-      
-        }}
-        className="bg-green-500 text-black py-3 px-26 rounded text-xl font-semibold hover:bg-green-800 transition duration-300 w-full mt-4"
-      >
-        Confirm
-      </button>
     </div>
   );
-}
+};
 
-export default ConfirmRidePanal
+
+export default LookingForDriver
