@@ -69,8 +69,6 @@ const CaptainSignup = () => {
       navigate("/CaptainHome");
     }}
     
-   
-  
 
   return (
     <div className="flex flex-col items-center h-screen overflow-hidden justify-between min-h-screen bg-gray-100">
@@ -119,6 +117,7 @@ const CaptainSignup = () => {
             className="bg-[#eeeeee] mb-6  px-4 py-2 rounded border font-xl w-full placeholder:font-light "
             required
             type="password"
+            autoComplete="current-password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -180,11 +179,11 @@ const CaptainSignup = () => {
               </select>
             </div>
           </div>
-          <button className="bg-black text-white py-2 px-4 font-medium hover:scale-95 mt-6 w-full">
+          <button className="bg-gradient-to-r from-orange-400 to-orange-700 text-white py-2 px-4 font-medium hover:scale-95 w-full">
             Create Account
           </button>
         </form>
-        <p className="text-center text-sm text-gray-500 mt-4">
+        <p className="text-center text-sm text-gray-500 mt-1">
           Already have an account?{" "}
           <Link to="/CaptainLogin" className="text-blue-500 hover:underline">
             Log in as Captain

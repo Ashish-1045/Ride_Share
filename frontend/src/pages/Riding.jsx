@@ -1,6 +1,5 @@
 import React from "react";
 import homeImg from "../assets/HomeImg.gif";
-import Car from "../assets/Car.png";
 import { Link } from "react-router-dom";
 
 const Riding = () => {
@@ -21,10 +20,14 @@ const Riding = () => {
         />
       </div>
 
-      <div className=" w-full h-1/2 flex  flex-col justify-center rounded-lg mb-4 px-2">
+      <div className=" w-full h-1/2 flex  flex-col justify-center rounded-full mb-4 px-2">
         <div className=" w-full h-full flex items-center justify-center rounded-lg mb-4">
-          <div className=" w-full flex items-center justify-start ml-4 rounded-lg ">
-            <img className="h-25 object-cover " src={Car} alt="Car" />
+          <div className=" w-full flex items-center justify-start -ml-2 rounded-lg ">
+            <img
+              src="https://cn-geo1.uber.com/image-proc/crop/resizecrop/udam/format=auto/width=552/height=368/srcb64=aHR0cHM6Ly90Yi1zdGF0aWMudWJlci5jb20vcHJvZC91ZGFtLWFzc2V0cy82NDkzYzI1NS04N2M4LTRlMmUtOTQyOS1jZjcwOWJmMWI4MzgucG5n"
+              alt="Car"
+              className="h-24  object-contain "
+            />
           </div>
           <div className=" w-full flex items-center justify-end mr-4 rounded-lg">
             <div className=" text-right flex flex-col  w-full ">
