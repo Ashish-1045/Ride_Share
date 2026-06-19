@@ -1,25 +1,17 @@
-import React from 'react'
-import { useState } from 'react';
+import React from "react";
+import { Link } from "react-router-dom";
 
-const RidePopUp = (props) => {
-     const [OTP, setOTP] = useState('')
-       const SubmitHandler = (e) => {
-         e.preventDefault();
-       };
-
+const FinishRide = (props) => {
   return (
-    <div className="bg-gray-100 w-full">
-      <h3
-        onClick={() => props.setRidePopUpPanal(false)}
-        className="text-2xl font-semibold flex items-center gap-2 w-full  justify-center mb-0 cursor-pointer "
-      >
-        <i className="text-gray-300 ri-arrow-down-wide-fill"></i>
-      </h3>
+    <div className="bg-gray-100 w-full h-screen ">
+     <h3
+  onClick={() => props.setFinishRidePanal(false)}
+  className="text-2xl font-semibold flex items-center gap-2 w-full justify-center mb-0 cursor-pointer"
+><i className="text-gray-300 mt-4 ri-arrow-down-wide-fill"></i></h3>
 
-      <div className="flex items-center justify-start gap-2 ml-4 w-full">
-        <i className=" text-2xl font-bold ri-riding-line"></i>
-        <h3 className="text-2xl font-bold text-center ">
-          Avaliable For Ride !
+      <div className="flex items-center justify-start ml-2 w-full ">
+        <h3 className="text-2xl font-bold text-center ml-2">
+         Ride Finish
         </h3>
       </div>
 
@@ -37,6 +29,8 @@ const RidePopUp = (props) => {
           <h5 className="text-lg font-semibold">249 km</h5>
         </div>
       </div>
+
+    
 
       <div>
         {" "}
@@ -75,44 +69,13 @@ const RidePopUp = (props) => {
         </div>
       </div>
 
-      <div className="w-full p-3">
-        <form
-          onSubmit={(e) => {
-            SubmitHandler(e);
-          }}
-        >
-          <input
-            value={OTP}
-            onChange={(e)=>
-            setOTP(e.target.value)
-          }
-            className="w-full py-2 px-5 border-2 rounded-lg text-gray-500 text-2xl font-semibold space-x-2"
-            type="text"
-            placeholder="Enter Your OTP"
-          />
 
-          <div className="flex justify-between items-center ">
-            <button
-              onClick={() => {
-                props.setConfirmRidePopUpPanal(true);
-              }}
-              className="bg-orange-400 text-black py-3 px-10 rounded-lg text-xl font-semibold hover:bg-orange-600 transition duration-300  mt-4"
-            >
-              Accept
-            </button>
-            <button
-              onClick={() => {
-                props.setRidePopUpPanal(false);
-              }}
-              className="bg-gray-400 text-black py-3 px-10 rounded-lg text-xl font-semibold hover:bg-gray-600 transition duration-300  mt-4"
-            >
-              Ignore
-            </button>
-          </div>
-        </form>
-      </div>
+      <Link
+       to = '/Captainhome'
+       className="flex justify-center bg-orange-400 text-black py-3 px-26 rounded-lg text-xl font-semibold hover:bg-orange-600 transition duration-300 w-full mt-4"> Completed
+     </Link>
     </div>
   );
-    }   
+};
 
-export default RidePopUp
+export default FinishRide;
