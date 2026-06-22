@@ -1,0 +1,24 @@
+[33m< 39ab165[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m MapApi
+[33m< 0a5a4ac[m MapApi
+[33m> f641a22[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m FinishRidePage
+[33m> dde1931[m CaptainRiding-Page
+[33m> 6757528[m Captain-home
+[33m> aa59905[m Riding
+[33m> 8b557da[m WaitingForDriver
+[33m> 394de49[m ConfirmRide
+[33m> 4260243[m locationSearchPanal
+[33m> 8e52783[m CaptainLogout
+[33m> 01b4c7e[m CaptainProtectedWrapper
+[33m> e0957bf[m UserLogout
+[33m> 47f26df[m UserProtectedWrapper
+[33m> e41b7d1[m UserSignup
+[33m> 9a7e4e1[m Sign up pages
+[33m> b48fd28[m resolve conflict
+[33m> b8f97bb[m login ui
+[33m> 5144098[m Welcome page
+[33m> c782d6a[m auth
+[33m< 31ef7df[m authntication Done
+[33m< df696d2[m Remove node_modules and env from GitHub
+[33m< a43ccd8[m first
+[33m< b738cc2[m Add environment file
+[33m< 5c0d188[m Describe the changes you made

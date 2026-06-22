@@ -1,0 +1,425 @@
+From a43ccd8d6340cad067bbce08868daad058eb053b Mon Sep 17 00:00:00 2001
+From: AshishCode <ashishmaheshwari7098@gmail.com>
+Date: Wed, 19 Nov 2025 22:35:47 +0530
+Subject: [PATCH] first
+
+---
+ Routes/captian.routes.js          |  14 ++++
+ app.js                            |   1 +
+ controllers/captain.controller.js |  50 +++++++++--
+ middlewares/auth.middleware.js    |  22 ++++-
+ models/captain.model.js           | 133 +++++++++++++++++++++++++-----
+ services/captain.service.js       |  50 ++++++++++-
+ 6 files changed, 236 insertions(+), 34 deletions(-)
+
+diff --git a/Routes/captian.routes.js b/Routes/captian.routes.js
+index 9d3e7d6..0bfd651 100644
+--- a/Routes/captian.routes.js
++++ b/Routes/captian.routes.js
+@@ -2,6 +2,8 @@ const express = require("express");
+ const router = express.Router();
+ const { body } = require("express-validator");
+ const userController =require('../controllers/user.controller')
++const captainController = require ('../controllers/captain.controller');
++const authMiddleware = require('../middlewares/auth.middleware');
+ 
+ router.post("/register", [
+   body("email").isEmail().withMessage("Invalid Email"),
+@@ -25,4 +27,16 @@ router.post("/register", [
+   userController.registerUser
+ );
+ 
++router.post("/login",[
++  body("email").isEmail().withMessage("Invalid Email"),
++  body("password")
++    .isLength({ min: 6 })
++    .withMessage("Password must be at least 6 characters long"),
++],
++captainController.loginCaption
++);
++
++router.get("/profile",authMiddleware.authCaptain,captainController.getCaptainProfile)
++
++router.post("/logout",authMiddleware.authCaptain,captainController.logoutCaptain)
+ module.exports = router;
+diff --git a/app.js b/app.js
+index 8ee79f0..145f0e0 100644
+--- a/app.js
++++ b/app.js
+@@ -18,6 +18,7 @@ app.use(cookieparser())
+ app.use('/users',userRoutes)
+ app.use('/captain',captainRoutes)
+ 
++
+ app.get('/',(req,res)=>{
+     res.send('hello world')
+ })
+diff --git a/controllers/captain.controller.js b/controllers/captain.controller.js
+index e754b7c..5807ca4 100644
+--- a/controllers/captain.controller.js
++++ b/controllers/captain.controller.js
+@@ -1,11 +1,12 @@
++const blacklistTokenModel = require('../models/blacklistToken.model')
+ const captainModel = require('../models/captain.model')
+ const captainService = require('../services/captain.service')
+ const {validationResult} = require('express-validator')
+ 
+ module.exports.registerCaption = async (req,res,next)=>{
+-    const error = validationResult(req)
+-    if(!error.isEmpty()){
+-        return res.status(400).json({error: errors.array()});
++    const errors = validationResult(req)
++    if(!errors.isEmpty()){
++        return res.status(400).json({errors: errors.array()});
+     }
+ 
+     const {fullname,password,email,vehicle}= req.body;
+@@ -21,16 +22,49 @@ module.exports.registerCaption = async (req,res,next)=>{
+     firstname:fullname.firstname,
+     lastname:fullname.lastname,
+     email,
+-    password:hashPassword(password),
++    password:hashPassword,
+     color:vehicle.color,
+     plate:vehicle.plate,
+-    capcity:vehicle.capcity,
+-    vehicle:vehicle.vehicleType,
++    capacity:vehicle.capacity,
++    vehicleType:vehicle.vehicleType,
+ 
+ 
+     });
+-    const token = captain.genrateAuthToken();
+-
++    const token = captain.generateAuthToken();
+     res.status(201).json({token,captain})
+ }
+ 
++module.exports.loginCaption = async (req,res,next)=>{
++   const errors = validationResult(req);
++   if(!errors.isEmpty()){
++    return res.status(400).json({errors:errors.array()})
++   }
++   
++   const {email,password} = req.body;
++    const captain = await captainModel.findOne({email}).select('+password');
++    if(!captain){
++        return res.status(400).json({message:'Invalid email or password'})
++    }
++
++    const isMatch = await captain.comparePassword(password)
++    if(!isMatch){
++        return res.status(400).json({message:'Invalid email or password'})
++    }
++
++    const token = captain.generateAuthToken();
++    res.cookie("token",token)
++    res.status(200).json({token,captain})
++}
++module.exports.getCaptainProfile = async (req,res,next)=>{
++    const captain = req.captain;
++    res.status(200).json({captain})
++}
++
++module.exports.logoutCaptain = async (req,res,next)=>{
++    const token = req.cookies.token || req.headers['authorization']?.split(' ')[1];
++     await blacklistTokenModel.create({token});
++     res.clearCookie('token');
++    
++     res.status(200).json({message:'Logout successful'});
++
++}
+\ No newline at end of file
+diff --git a/middlewares/auth.middleware.js b/middlewares/auth.middleware.js
+index b114f37..86ce8fd 100644
+--- a/middlewares/auth.middleware.js
++++ b/middlewares/auth.middleware.js
+@@ -2,7 +2,8 @@ const userModel = require('../models/user.model');
+ const bcrypt = require('bcrypt');
+ const jwt = require('jsonwebtoken');
+ const { validationResult } = require('express-validator');  
+-const blacklistedTokenModel = require("../models/blacklistToken.model")
++const blacklistedTokenModel = require("../models/blacklistToken.model");
++const captainModel = require('../models/captain.model');
+ 
+ 
+ module.exports.authuser = async (req, res , next ) => {
+@@ -24,4 +25,21 @@ module.exports.authuser = async (req, res , next ) => {
+   }
+ }
+ 
+-
++module.exports.authCaptain = async(req,res,next)=>{
++  const token = req.cookies.token || req.headers['authorization']?.split(' ')
++  if(!token){
++    return res.sataus(401).json({message:'unauthorized'})
++  }
++  const blacklistedToken = await blacklistedTokenModel.findOne({token : token});
++  if(blacklistedToken){
++    return res.status(401).json({message:'unauthorized'})
++  }
++  try{
++    const decoded = jwt.verify(token,process.env.JWT_SECRET);
++    const captain = await captainModel.findById(decoded._id)
++    req.captain = captain;
++    return next();
++  }catch(error){
++    return res.status(401).json({message:'unauthorized'})
++  }
++}
+diff --git a/models/captain.model.js b/models/captain.model.js
+index 5d6e7bb..f5a12e5 100644
+--- a/models/captain.model.js
++++ b/models/captain.model.js
+@@ -1,8 +1,98 @@
++// const mongoose = require("mongoose");
++
++// const captainSchema = new mongoose.Schema({
++//   fullname: {
++//     fistname: {
++//       type: String,
++//       required: true,
++//       minlength: [3, "First name must be at least 3 characters long"],
++//     },
++//     lastname: {
++//       type: String,
++//       required: true,
++//       minlength: [3, "Last name must be at least 3 characters long"],
++//     },
++//   },
++//   email: {
++//     type: String,
++//     required: true,
++//     unique: true,
++//     lowercase: true,
++//   },
++//   password: {
++//     type: String,
++//     required: true,
++//     select: false,
++//     minlength: [6, "Password must be at least 6 characters long"],
++//   },
++//   socketId: {
++//     type: String,
++//     required: false,
++//   },
++//   status: {
++//     type: String,
++//     enum: ["active", "inactive"],
++//     default: "inactive",
++//   },
++//   vehicle: {
++//     color: {
++//       type: String,
++//       required: true,
++//       minlength: [3, "Color must be at least  3 characters long"],
++//     },
++//     plate: {
++//       type: String,
++//       required: true,
++//       minlenght: [3, "plate must be at least 3 cahracters long"],
++//     },
++//     capacity: {
++//       type: String,
++//       required: true,
++//       min: [1, "Capacity must be at least 1"],
++//     },
++//     vehicleType: {
++//       type: String,
++//       required: true,
++//       enum: ["car", "motercycle", "auto"],
++//     },
++//   },
++//   location: {
++//     lat: {
++//       type: Number,
++//     },
++//     lng: {
++//       type: Number,
++//     },
++//   },
++// });
++
++// captainSchema.methods.generateAuthToken = function () {
++//   const token = jwt.sign({ _id: this._id }, process.env.JWT_SECRET, {
++//     expiresIn: "24h",
++//   });
++//   return;
++// };
++
++// captainSchema.methods.comparePassword = async function(password){
++//    return await bcrypt.compare(password,this.password)
++// }
++
++// captainSchema.methods.hashPassword = async function (password) {
++//   return await bcrypt.hash(password, 10);
++// };
++
++// const captainModel = mongoose.model('captain',captainSchema)
++
++// module.exports = captainModel; 
++
++
+ const mongoose = require("mongoose");
++const bcrypt = require("bcrypt");
++const jwt = require("jsonwebtoken");
+ 
+ const captainSchema = new mongoose.Schema({
+   fullname: {
+-    fistname: {
++    firstname: {
+       type: String,
+       required: true,
+       minlength: [3, "First name must be at least 3 characters long"],
+@@ -27,7 +117,6 @@ const captainSchema = new mongoose.Schema({
+   },
+   socketId: {
+     type: String,
+-    required: false,
+   },
+   status: {
+     type: String,
+@@ -38,49 +127,49 @@ const captainSchema = new mongoose.Schema({
+     color: {
+       type: String,
+       required: true,
+-      minlength: [3, "Color must be at least  3 characters long"],
++      minlength: [3, "Color must be at least 3 characters long"],
+     },
+     plate: {
+       type: String,
+       required: true,
+-      minlenght: [3, "plate must be at least 3 cahracters long"],
++      minlength: [3, "Plate must be at least 3 characters long"],
+     },
+     capacity: {
+-      type: String,
++      type: Number,
+       required: true,
+       min: [1, "Capacity must be at least 1"],
+     },
+     vehicleType: {
+       type: String,
+       required: true,
+-      enum: ["car", "motercycle", "auto"],
++      enum: ["car", "motorcycle", "auto"],
+     },
+   },
+   location: {
+-    lat: {
+-      type: Number,
+-    },
+-    lng: {
+-      type: Number,
+-    },
++    lat: Number,
++    lng: Number,
+   },
+ });
+ 
++// HASH PASSWORD BEFORE SAVE
++captainSchema.pre("save", async function (next) {
++  if (!this.isModified("password")) return next();
++  this.password = await bcrypt.hash(this.password, 10);
++  next();
++});
++
++// GENERATE TOKEN
+ captainSchema.methods.generateAuthToken = function () {
+   const token = jwt.sign({ _id: this._id }, process.env.JWT_SECRET, {
+     expiresIn: "24h",
+   });
+-  return;
++  return token;
+ };
+ 
+-captainSchema.methods.comparePassword = async function(password){
+-   return await bcrypt.compare(password,this.password)
+-}
+-
+-captainSchema.methods.hashPassword = async function (password) {
+-  return await bcrypt.hash(password, 10);
++// COMPARE PASSWORD
++captainSchema.methods.comparePassword = async function (password) {
++  return await bcrypt.compare(password, this.password);
+ };
+ 
+-const captainModel = mongoose.model('captain',captainSchema)
+-
+-module.exports = captainModel; 
+\ No newline at end of file
++const captainModel = mongoose.model("captain", captainSchema);
++module.exports = captainModel;
+diff --git a/services/captain.service.js b/services/captain.service.js
+index 265acee..ebde9a5 100644
+--- a/services/captain.service.js
++++ b/services/captain.service.js
+@@ -1,3 +1,46 @@
++// const captainModel = require("../models/captain.model");
++
++// module.exports.CreateCaptain = async ({
++//   firstname,
++//   lastname,
++//   email,
++//   password,
++//   color,
++//   plate,
++//   capacity,
++//   vehicleType,
++// }) => {
++//   if (
++//     !firstname ||
++//     !lastname ||
++//     !email ||
++//     !password ||
++//     !color ||
++//     !plate ||
++//     !capacity ||
++//     !vehicleType
++//   ) {
++//     throw new Error("All fields are required");
++//   }
++
++//   const captain = await captainModel.create({
++//     fullname: {
++//       firstname,
++//       lastname,
++//     },
++//     email,
++//     password,
++//     vehicle: {
++//       color,
++//       capacity,
++//       plate,
++//       vehicleType,
++//     },
++//   });
++
++//   return captain;
++// };
++
+ const captainModel = require("../models/captain.model");
+ 
+ module.exports.CreateCaptain = async ({
+@@ -23,13 +66,16 @@ module.exports.CreateCaptain = async ({
+     throw new Error("All fields are required");
+   }
+ 
++  // HASH THE PASSWORD
++  const hashedPassword = await captainModel.prototype.hashPassword(password);
++
+   const captain = await captainModel.create({
+     fullname: {
+-      firstname,
++      firstname, // ✔ MUST MATCH SCHEMA
+       lastname,
+     },
+     email,
+-    password,
++    password: hashedPassword, // ✔ hashed password store
+     vehicle: {
+       color,
+       capacity,
+-- 
+2.45.2.windows.1
+
