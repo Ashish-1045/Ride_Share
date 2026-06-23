@@ -1,60 +1,3 @@
-// const axios = require("axios");
-
-// module.exports.getAddressCoordinate = async (address) => {
-//   try {
-//     const response = await axios.get(
-//       "https://nominatim.openstreetmap.org/search",
-//       {
-//         params: {
-//           q: address,
-//           format: "json",
-//           limit: 1,
-//         },
-//         headers: {
-//           "User-Agent": "MERN-Uber-Clone/1.0",
-//         },
-//       },
-//     );
-
-//     if (!response.data || response.data.length === 0) {
-//       throw new Error("Address not found");
-//     }
-
-//     return {
-//       lat: parseFloat(response.data[0].lat),
-//       lng: parseFloat(response.data[0].lon),
-//     };
-//   } catch (error) {
-//     console.error("Error getting coordinates:", error.message);
-//     throw error;
-//   }
-// };
-
-// module.exports.getDistanceTime = async (origin, destination) => {
-//   try {
-//     const response = await axios.get(
-//       `http://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}`,
-//       {
-//         params: {
-//           overview: "false",
-//         },
-//       }
-//     );
-
-//     if (!response.data.routes || response.data.routes.length === 0) {
-//       throw new Error("Distance and time not found");
-//     }
-
-//     return {
-//       distance: response.data.routes[0].distance, // meters
-//       duration: response.data.routes[0].duration, // seconds
-//     };
-//   } catch (error) {
-//     console.error("Error getting distance and time:", error.message);
-//     throw error;
-//   }
-// };
-
 const axios = require("axios");
 
 module.exports.getAddressCoordinate = async (address) => {
@@ -97,15 +40,52 @@ module.exports.getDistanceTime = async (origin, destination) => {
       },
     );
 
-    if (!response.data.routes?.length) {
-      throw new Error("Distance and time not found");
+    const route = response.data.routes[0];
+
+    const durationInSeconds = route.duration;
+
+    const hours = Math.floor(durationInSeconds / 3600);
+    const minutes = Math.floor((durationInSeconds % 3600) / 60);
+
+    let durationText = "";
+
+    if (hours > 0) {
+      durationText = `${hours} hr ${minutes} min`;
+    } else {
+      durationText = `${minutes} min`;
     }
 
     return {
-      distance: response.data.routes[0].distance,
-      duration: response.data.routes[0].duration,
+      distance: `${(route.distance / 1000).toFixed(1)} km`,
+      distanceKm: Number((route.distance / 1000).toFixed(1)),
+      duration: durationText,
+      durationMinutes: Math.ceil(durationInSeconds / 60),
     };
   } catch (error) {
     throw error;
+  }
+};
+
+module.exports.getSuggestions = async (input) => {
+  try {
+    const response = await axios.get(
+      "https://api.geoapify.com/v1/geocode/autocomplete",
+      {
+        params: {
+          text: input,
+          limit: 5,
+          apiKey: process.env.GEOAPIFY_API_KEY,
+        },
+      },
+    );
+
+    return response.data.features.map((place) => ({
+      displayName: place.properties.formatted,
+      lat: place.properties.lat,
+      lng: place.properties.lon,
+    }));
+  } catch (error) {
+    console.error(error.response?.data || error);
+    throw new Error("Unable to fetch suggestions");
   }
 };

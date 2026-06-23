@@ -9,6 +9,7 @@ const connectToDB = require('./db/db.js')
 const userRoutes = require('./Routes/user.routes.js')
 const captainRoutes = require('./Routes/captain.routes.js')
 const mapsRoutes = require('./Routes/maps.routes.js')
+const rideRoutes = require('../backend/Routes/ride.routes.js')
 const morgan = require('morgan');
 app.use(morgan('dev'))
 
@@ -21,6 +22,7 @@ app.use(cookieparser())
 app.use('/users',userRoutes)
 app.use('/captains',captainRoutes)
 app.use('/maps',mapsRoutes)
+app.use('/rides',rideRoutes)
 
 
 app.get('/',(req,res)=>{

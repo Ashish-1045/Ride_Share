@@ -62,3 +62,18 @@ module.exports.getDistanceTime = async (req, res) => {
     });
   }
 };
+
+module.exports.getSuggestions = async (req, res) => {
+
+  try {
+    const { input } = req.query;
+
+    const suggestions = await mapService.getSuggestions(input);
+
+    res.status(200).json(suggestions);
+  } catch (error) {
+    res.status(400).json({
+      message: error.message,
+    });
+  }
+};

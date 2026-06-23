@@ -22,8 +22,12 @@ router.get(
   mapsController.getDistanceTime,
 );
 
-
-
+router.get(
+  "/get-suggestions",
+  query("input").isLength({ min: 2 }),
+  authuser,
+  mapsController.getSuggestions,
+);
 
 router.get("/test", (req, res) => {
   res.send("Maps route working");
