@@ -79,11 +79,12 @@ module.exports.getSuggestions = async (input) => {
       },
     );
 
-    return response.data.features.map((place) => ({
-      displayName: place.properties.formatted,
-      lat: place.properties.lat,
-      lng: place.properties.lon,
-    }));
+  return response.data.features.map((place) => ({
+    displayName: place.properties.formatted,
+    fullAddress: place.properties.formatted,
+    lat: place.properties.lat,
+    lng: place.properties.lon,
+  }));
   } catch (error) {
     console.error(error.response?.data || error);
     throw new Error("Unable to fetch suggestions");

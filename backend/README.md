@@ -1,211 +1,227 @@
 # Backend API Documentation
 
-## `/users/register` Endpoint
+## Overview
 
-### Description
+This backend powers the RideShare app with authentication, ride handling, and map-based location services.
 
-Registers a new user by creating a user account with the provided information.
+### Implemented features
 
-### HTTP Method
+- User registration, login, profile, and logout
+- Captain registration, login, profile, and logout
+- Ride creation and fare calculation
+- Address lookup and route distance/time estimation
+- Place suggestions from the maps service
 
-`POST`
+## Tech stack
 
-### Request Body
+- Node.js + Express
+- MongoDB with Mongoose
+- JWT authentication
+- bcrypt for password hashing
+- express-validator for request validation
+- Axios for external API calls
 
-The request body should be in JSON format and include the following fields:
+## Environment variables
 
-- `fullname` (object):
-  - `firstname` (string, required): User's first name (minimum 3 characters).
-  - `lastname` (string, optional): User's last name (minimum 3 characters).
-- `email` (string, required): User's email address (must be a valid email).
-- `password` (string, required): User's password (minimum 6 characters).
+Create a `.env` file in the backend folder with:
 
-### Example Response
+```env
+PORT=3000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+GEOAPIFY_API_KEY=your_geoapify_key
+NODE_ENV=development
+```
 
-- `user` (object):
-  - `fullname` (object).
-    - `firstname` (string): User's first name (minimum 3 characters).
-    - `lastname` (string): User's last name (minimum 3 characters).   
-  - `email` (string): User's email address (must be a valid email).
-  - `password` (string): User's password (minimum 6 characters).
-- `token` (String): JWT Token
+## Getting started
 
-## `/users/login` Endpoint
+```bash
+cd backend
+npm install
+npm start
+```
 
-### Description
+The server will run on `http://localhost:3000`.
 
-Authenticates a user using their email and password, returning a JWT token upon successful login.
+---
 
-### HTTP Method
+## Authentication
 
-`POST`
+Most protected routes require a valid JWT token.
 
-### Endpoint
+You can send it in either of these ways:
 
-`/users/login`
+- `Authorization: Bearer <token>`
+- Cookie named `token`
 
-### Request Body
+---
 
-The request body should be in JSON format and include the following fields:
+## User routes
 
-- `email` (string, required): User's email address (must be a valid email).
-- `password` (string, required): User's password (minimum 6 characters).
+### `POST /users/register`
 
-### Example Response
+Registers a new user.
 
-- `user` (object):
-  - `fullname` (object).
-    - `firstname` (string): User's first name (minimum 3 characters).
-    - `lastname` (string): User's last name (minimum 3 characters).   
-  - `email` (string): User's email address (must be a valid email).
-  - `password` (string): User's password (minimum 6 characters).
-- `token` (String): JWT Token
+#### Request body
 
-## `/users/profile` Endpoint
+```json
+{
+  "fullname": {
+    "firstname": "Aman",
+    "lastname": "Sharma"
+  },
+  "email": "aman@example.com",
+  "password": "123456"
+}
+```
 
-### Description
+#### Response
 
-Retrieves the profile information of the currently authenticated user.
+```json
+{
+  "user": {
+    "id": "...",
+    "email": "aman@example.com",
+    "fullname": {
+      "firstname": "Aman",
+      "lastname": "Sharma"
+    }
+  }
+}
+```
 
-### HTTP Method
+### `POST /users/login`
 
-`GET`
+Logs in an existing user.
 
-### Authentication
+#### Request body
 
-Requires a valid JWT token in the Authorization header:
-`Authorization: Bearer <token>`
+```json
+{
+  "email": "aman@example.com",
+  "password": "123456"
+}
+```
 
-### Example Response
+### `GET /users/profile`
 
-- `user` (object):
-  - `fullname` (object).
-    - `firstname` (string): User's first name (minimum 3 characters).
-    - `lastname` (string): User's last name (minimum 3 characters).   
-  - `email` (string): User's email address (must be a valid email).
+Returns the current authenticated user's profile.
 
+### `POST /users/logout`
 
+Logs out the current user and blacklists the active token.
 
-## `/users/logout` Endpoint
+---
 
-### Description
+## Captain routes
 
-Logout the current user and blacklist the token provided in cookie or headers
+### `POST /captains/register`
 
-### HTTP Method
+Registers a new captain.
 
-`GET`
+#### Request body
 
-### Authentication
+```json
+{
+  "fullname": {
+    "firstname": "Ravi",
+    "lastname": "Patel"
+  },
+  "email": "ravi@example.com",
+  "password": "123456",
+  "vehicle": {
+    "color": "Black",
+    "plate": "MP09AB1234",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
 
-Requires a valid JWT token in the Authorization header or cookie:
+### `POST /captains/login`
 
-- `user` (object):
-  - `fullname` (object).
-    - `firstname` (string): User's first name (minimum 3 characters).
-    - `lastname` (string): User's last name (minimum 3 characters).   
-  - `email` (string): User's email address (must be a valid email).
-  - `password` (string): User's password (minimum 6 characters).
-- `token` (String): JWT Token## `/captains/register` Endpoint
+Logs in an existing captain.
 
-### Description
+### `GET /captains/profile`
 
-Registers a new captain by creating a captain account with the provided information.
+Returns the authenticated captain profile.
 
-### HTTP Method
+### `GET /captains/logout`
 
-`POST`
+Logs out the captain and invalidates the active token.
 
-### Request Body
+---
 
-The request body should be in JSON format and include the following fields:
+## Ride routes
 
-- `fullname` (object):
-  - `firstname` (string, required): Captain's first name (minimum 3 characters)
-  - `lastname` (string, optional): Captain's last name
-- `email` (string, required): Captain's email address (must be a valid email)
-- `password` (string, required): Captain's password (minimum 6 characters)
-- `vehicle` (object):
-  - `color` (string, required): Vehicle color (minimum 3 characters)
-  - `plate` (string, required): Vehicle plate number (minimum 3 characters)
-  - `capacity` (number, required): Vehicle passenger capacity (minimum 1)
-  - `vehicleType` (string, required): Type of vehicle (must be 'car', 'motorcycle', or 'auto')
+### `POST /rides/create`
 
-### Example Response
+Creates a ride request for the authenticated user.
 
+#### Query/body values
 
-## `/captains/register` Endpoint
+- `pickup`: pickup location string
+- `destination`: destination location string
+- `vehicleType`: `auto`, `car`, or `motorcycle`
 
-### Description
+Example:
 
-Registers a new captain by creating a captain account with the provided information.
+```http
+POST /rides/create?pickup=Indore&destination=Bhopal&vehicleType=car
+```
 
-### HTTP Method
+### `POST /rides/getfare`
 
-`POST`
+Calculates an estimated fare between two locations.
 
-### Request Body
+Example:
 
-The request body should be in JSON format and include the following fields:
+```http
+POST /rides/getfare?pickup=Indore&destination=Bhopal
+```
 
-- `fullname` (object):
-  - `firstname` (string, required): Captain's first name (minimum 3 characters).
-  - `lastname` (string, optional): Captain's last name (minimum 3 characters).
-- `email` (string, required): Captain's email address (must be a valid email).
-- `password` (string, required): Captain's password (minimum 6 characters).
-- `vehicle` (object):
-  - `color` (string, required): Vehicle color (minimum 3 characters).
-  - `plate` (string, required): Vehicle plate number (minimum 3 characters).
-  - `capacity` (number, required): Vehicle passenger capacity (minimum 1).
-  - `vehicleType` (string, required): Type of vehicle (must be 'car', 'motorcycle', or 'auto').
+---
 
-### Example Response
+## Maps routes
 
-- `captain` (object):
-  - `fullname` (object).
-    - `firstname` (string): Captain's first name (minimum 3 characters).
-    - `lastname` (string): Captain's last name (minimum 3 characters).   
-  - `email` (string): Captain's email address (must be a valid email).
-  - `password` (string): Captain's password (minimum 6 characters).
-  - `vehicle` (object):
-    - `color` (string): Vehicle color.
-    - `plate` (string): Vehicle plate number.
-    - `capacity` (number): Vehicle passenger capacity.
-    - `vehicleType` (string): Type of vehicle.
-- `token` (String): JWT Token
+### `GET /maps/getCoordinates`
 
-## `/captains/login` Endpoint
+Gets latitude and longitude for a given address.
 
-### Description
+Example:
 
-Authenticates a captain using their email and password, returning a JWT token upon successful login.
+```http
+GET /maps/getCoordinates?address=Bhopal
+```
 
-### HTTP Method
+### `GET /maps/getDistanceTime`
 
-`POST`
+Returns approximate distance and travel duration between two addresses.
 
-### Endpoint
+Example:
 
-`/captains/login`
+```http
+GET /maps/getDistanceTime?origin=Bhopal&destination=Indore
+```
 
-### Request Body
+### `GET /maps/get-suggestions`
 
-The request body should be in JSON format and include the following fields:
+Returns location suggestions for a typed input string.
 
-- `email` (string, required): Captain's email address (must be a valid email).
-- `password` (string, required): Captain's password (minimum 6 characters).
+Example:
 
-### Example Response
+```http
+GET /maps/get-suggestions?input=bhopal
+```
 
-- `captain` (object):
-  - `fullname` (object).
-    - `firstname` (string): Captain's first name (minimum 3 characters).
-    - `lastname` (string): Captain's last name (minimum 3 characters).   
-  - `email` (string): Captain's email address (must be a valid email).
-  - `password` (string): Captain's password (minimum 6 characters).
-  - `vehicle` (object):
-    - `color` (string): Vehicle color.
-    - `plate` (string): Vehicle plate number.
-    - `capacity` (number): Vehicle passenger capacity.
-    - `vehicleType` (string): Type of vehicle.
-- `token` (String): JWT Token
+### `GET /maps/test`
+
+Simple health check endpoint for the maps route.
+
+---
+
+## Notes
+
+- Validation is enforced for required fields and minimum lengths.
+- Logout routes blacklist the current token for future auth checks.
+- The map suggestions feature uses the Geoapify API and depends on `GEOAPIFY_API_KEY` being configured.

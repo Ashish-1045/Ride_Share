@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
+import axios from "axios";
 import { useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -12,11 +13,12 @@ import homeImg from "../assets/HomeImg.gif";
 import LookingForDriver from "../Components/LookingForDriver";
 import WaitingForDriver from "../Components/WaitingForDriver";
 
+
 const Home = () => {
   const [pickupLocation, setPickupLocation] = useState("");
   const [destination, setDestination] = useState("");
   const [panalOpen, setPanelOpen] = useState(false);
-  const vechielPanalRef = useRef(null)
+  const vechielPanalRef = useRef(null);
   const panalRef = useRef(null);
   const vechielFoundRef = useRef(null);
   const WaitingForDriverRef = useRef(null);
@@ -27,6 +29,63 @@ const Home = () => {
   const [vechielFound, setVechielFound] = useState(false);
   const [waitingForDriver, setWaitingForDriver] = useState(false);
 
+  const [activeField, setActiveField] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [fare, setFare] = useState({})
+
+  const fetchSuggestions = async (value) => {
+    if (!value.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      const token = localStorage.getItem("token");
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
+        {
+          params: {
+            input: value,
+          },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+
+      setSuggestions(response.data || []);
+    } catch (error) {
+      console.log("Suggestions Error:", error.response?.data || error.message);
+      setSuggestions([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSelectLocation = (location) => {
+    if (activeField === "pickup") {
+      setPickupLocation(location);
+    } else {
+      setDestination(location);
+    }
+
+    setSuggestions([]);
+    setPanelOpen(false);
+
+    const pickupValue = activeField === "pickup" ? location : pickupLocation;
+
+    const destinationValue =
+      activeField === "destination" ? location : destination;
+
+    if (pickupValue && destinationValue) {
+      // setVechielPanal(true);
+    }
+  };
+
   const SubmitHandler = (e) => {
     e.preventDefault();
   };
@@ -34,18 +93,18 @@ const Home = () => {
   useGSAP(() => {
     if (panalOpen) {
       gsap.to(panalRef.current, {
-        height: "74%",
+        height: "62%",
       });
-      if(panalClosRef.current){
+      if (panalClosRef.current) {
         gsap.to(panalClosRef.current, {
           opacity: 1,
         });
       }
-    }else{
+    } else {
       gsap.to(panalRef.current, {
         height: "0%",
       });
-      if(panalClosRef.current){
+      if (panalClosRef.current) {
         gsap.to(panalClosRef.current, {
           opacity: 0,
         });
@@ -53,20 +112,19 @@ const Home = () => {
     }
   }, [panalOpen]);
 
- useGSAP(() => {
-   if (vechielPanal) {
-     gsap.to(vechielPanalRef.current, {
-       y: 0,
-       duration: 0.3,
-     });
-   } else {
-     gsap.to(vechielPanalRef.current, {
-       y: "100%",
-       duration: 0.3,
-     });
-   }
- }, [vechielPanal]);
-    
+  useGSAP(() => {
+    if (vechielPanal) {
+      gsap.to(vechielPanalRef.current, {
+        y: 0,
+        duration: 0.3,
+      });
+    } else {
+      gsap.to(vechielPanalRef.current, {
+        y: "100%",
+        duration: 0.3,
+      });
+    }
+  }, [vechielPanal]);
 
   useGSAP(() => {
     if (confirmRidePanal) {
@@ -82,36 +140,54 @@ const Home = () => {
     }
   }, [confirmRidePanal]);
 
-    useGSAP(() => {
-      if (vechielFound) {
-        gsap.to(vechielFoundRef.current, {
-          y: 0,
-          duration: 0.3,
-        });
-      } else {
-        gsap.to(vechielFoundRef.current, {
-          y: "100%",
-          duration: 0.3,
-        });
-      }
-    }, [vechielFound]);
+  useGSAP(() => {
+    if (vechielFound) {
+      gsap.to(vechielFoundRef.current, {
+        y: 0,
+        duration: 0.3,
+      });
+    } else {
+      gsap.to(vechielFoundRef.current, {
+        y: "100%",
+        duration: 0.3,
+      });
+    }
+  }, [vechielFound]);
 
-        useGSAP(() => {
-          if (waitingForDriver) {
-            gsap.to(WaitingForDriverRef.current, {
-              y: 0,
-              duration: 0.3,
-            });
-          } else {
-            gsap.to(WaitingForDriverRef.current, {
-              y: "100%",
-              duration: 0.3,
-            });
-          }
-        }, [waitingForDriver]);
+  useGSAP(() => {
+    if (waitingForDriver) {
+      gsap.to(WaitingForDriverRef.current, {
+        y: 0,
+        duration: 0.3,
+      });
+    } else {
+      gsap.to(WaitingForDriverRef.current, {
+        y: "100%",
+        duration: 0.3,
+      });
+    }
+  }, [waitingForDriver]);
 
+ async function findtrip(){
+   const response = await axios.get(
+     `${import.meta.env.VITE_BASE_URL}/rides/getfare`,
+     {
+      params: {
+       pickup:pickupLocation,
+       destination:destination
+},
+       headers: {
+         Authorization: `Bearer ${localStorage.getItem("token")}`,
+       },
+     },
+   );
+   console.log(response.data)
+   
+   setFare(response.data);
+   setVechielPanal(true);
+   setPanelOpen(false);
 
-  
+  }
 
   return (
     <div className=" w-screen h-screen relative overflow-hidden">
@@ -142,35 +218,57 @@ const Home = () => {
           <h3 className="text-3xl font-semibold">Find a trip </h3>
 
           <form onSubmit={SubmitHandler}>
-            <div className="absolute left-8 top-[43%] flex flex-col items-center">
+            <div className="absolute left-8 top-[33%] flex flex-col items-center">
               <div className="w-1 h-16 bg-gray-700 rounded-full"></div>
 
               <div className="w-1.5 h-1.5 bg-gray-700 rounded-full mt-2"></div>
             </div>
 
             <input
-              onClick={() => setPanelOpen(true)}
+              onFocus={() => {
+                setActiveField("pickup");
+                setPanelOpen(true);
+              }}
               value={pickupLocation}
-              onChange={(e) => setPickupLocation(e.target.value)}
-              className="bg-[#eee] px-9 w-[100%] py-2 text-lg rounded-xl mt-4 "
+              onChange={(e) => {
+                setPickupLocation(e.target.value);
+                fetchSuggestions(e.target.value);
+              }}
+              className="bg-[#eee] px-9 w-full py-2 text-lg rounded-xl mt-4"
               type="text"
               placeholder="Add a pickup location"
             />
             <input
-              onClick={() => setPanelOpen(true)}
+              onFocus={() => {
+                setActiveField("destination");
+                setPanelOpen(true);
+              }}
               value={destination}
-              onChange={(e) => setDestination(e.target.value)}
-              className="bg-[#eee] px-9 w-[100%] py-2 text-lg rounded-xl mt-4 "
+              onChange={(e) => {
+                setDestination(e.target.value);
+                fetchSuggestions(e.target.value);
+              }}
+              className="bg-[#eee] px-9 w-full py-2 text-lg rounded-xl mt-4"
               type="text"
               placeholder="Enter your destination"
             />
+            <button
+              type="button"
+              onClick={findtrip}
+              className="w-full bg-black text-white text-2xl py-2 rounded-lg mt-4"
+              
+            >
+              Find
+            </button>
+            
           </form>
         </div>
 
-        <div ref={panalRef} className="  w-screen bg-white">
+        <div ref={panalRef} className=" w-screen bg-white ">
           <LocationSearchPanel
-            vechielPanal={vechielPanal}
-            setVechielPanal={setVechielPanal}
+            suggestions={suggestions}
+            isLoading={isLoading}
+            onSelectLocation={handleSelectLocation}
             setPanelOpen={setPanelOpen}
           />
         </div>
@@ -180,6 +278,8 @@ const Home = () => {
           className="ref= bg-white fixed bottom-0  w-full p-2 space-y-3  translate-y-full"
         >
           <VechielPanal
+            fare={fare}
+            setFare={setFare}
             setVechielPanal={setVechielPanal}
             setConfirmRidePanal={setConfirmRidePanal}
           />
@@ -201,7 +301,7 @@ const Home = () => {
           <LookingForDriver setvechielFound={setVechielFound} />
         </div>
 
-         <div
+        <div
           ref={WaitingForDriverRef}
           className="ref= bg-white fixed bottom-0  w-full p-2 space-y-3 translate-y-full"
         >
