@@ -6,8 +6,10 @@ const LookingForDriver = (props) => {
   
   return (
     <div className="bg-white w-full ">
-      <h3 onClick ={() => props.setvechielFound(false)}
-      className="text-2xl font-semibold flex items-center gap-2 w-full  justify-center mb-0 cursor-pointer ">
+      <h3
+        onClick={() => props.setvechielFound(false)}
+        className="text-2xl font-semibold flex items-center gap-2 w-full  justify-center mb-0 cursor-pointer "
+      >
         <i className="text-gray-300 ri-arrow-down-wide-fill"></i>
       </h3>
 
@@ -31,10 +33,7 @@ const LookingForDriver = (props) => {
             <i className="text-2xl text-bold ri-map-pin-user-fill"></i>
             <div className="flex flex-col ">
               <h2 className="text-lg font-bold ">562/11</h2>
-              <h4 className="font-semibold">
-                {" "}
-                Raj darbar, j-sector , Ayoodya Bypass
-              </h4>
+              <h4 className="font-semibold"> {props.pickup}</h4>
             </div>
           </div>
         </div>
@@ -43,10 +42,7 @@ const LookingForDriver = (props) => {
             <i className="text-2xl text-bold ri-map-pin-fill"></i>
             <div className="flex flex-col ">
               <h2 className="text-lg font-bold ">562/11</h2>
-              <h4 className="font-semibold">
-                {" "}
-                Raj darbar, j-sector , Ayoodya Bypass
-              </h4>
+              <h4 className="font-semibold"> {props.destination}</h4>
             </div>
           </div>
         </div>
@@ -54,7 +50,9 @@ const LookingForDriver = (props) => {
           <div className="flex items-center gap-6 ml-4 h-auto">
             <i className="text-2xl text-bold ri-currency-line"></i>
             <div className="flex flex-col ">
-              <h2 className="text-lg font-bold ">199.20</h2>
+              <h2 className="text-lg font-bold ">
+                ₹{props.fare?.[props.vehicleType]}
+              </h2>
               <h4 className="font-semibold"> cash on delivery</h4>
             </div>
           </div>

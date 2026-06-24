@@ -47,7 +47,7 @@ const ConfirmRidePopUp  = (props) => {
               <h2 className="text-lg font-bold ">562/11</h2>
               <h4 className="font-semibold">
                 {" "}
-                Raj darbar, j-sector , Ayoodya Bypass
+                , Ayoodya Bypass
               </h4>
             </div>
           </div>
@@ -88,6 +88,8 @@ const ConfirmRidePopUp  = (props) => {
         onClick={() => {
           props.setConfirmRidePopUpPanal(false);
           props.setRidePopUpPanal(false)
+          
+
         }}
         className="bg-red-500 text-black py-3 px-26 rounded-lg text-xl font-semibold hover:bg-red-700 transition duration-300 w-full mt-4"
       >
@@ -97,4 +99,4 @@ const ConfirmRidePopUp  = (props) => {
   );
 }   
 
-export default ConfirmRidePopUp 
+export default ConfirmRidePopUp ;

@@ -35,7 +35,7 @@ router.get(
   query("pickup")
     .isString()
     .isLength({ min: 3 })
-    .withMessage("Invalid Origin Location"),
+    .withMessage("Invalid pickup Location"),
 
   query("destination")
     .isString()

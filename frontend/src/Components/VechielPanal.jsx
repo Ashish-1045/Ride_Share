@@ -1,8 +1,7 @@
-import React from 'react'
+import React from "react";
 import Car from "../assets/Car.png";
 import Auto from "../assets/Auto.png";
 import Bike from "../assets/Bike.png";
-
 
 const VechielPanal = (props) => {
   return (
@@ -24,7 +23,10 @@ const VechielPanal = (props) => {
         <h3 className="text-2xl font-semibold p-2">Choose a Vehicle</h3>
       </div>
       <div
-        onClick={() => props.setConfirmRidePanal(true)}
+        onClick={() => {
+          props.setConfirmRidePanal(true);
+          props.selectVehicle("car");
+        }}
         className="flex items-center justify-between border-black border-2 hover:border-3  rounded-xl p-3 w-full "
       >
         <img className="h-18 object-contain " src={Car} alt="car" />
@@ -46,7 +48,10 @@ const VechielPanal = (props) => {
       </div>
 
       <div
-        onClick={() => props.setConfirmRidePanal(true)}
+        onClick={() => {
+          props.setConfirmRidePanal(true);
+          props.selectVehicle("motorcycle");
+        }}
         className="flex items-center justify-between  border-black border-2 hover:border-3  rounded-xl p-3 w-full "
       >
         <img className="h-13 object-contain" src={Bike} alt="bike" />
@@ -67,7 +72,10 @@ const VechielPanal = (props) => {
         <h2 className="text-xl font-bold">₹{props.fare.motorcycle}</h2>
       </div>
       <div
-        onClick={() => props.setConfirmRidePanal(true)}
+        onClick={() => {
+          props.setConfirmRidePanal(true);
+          props.selectVehicle("auto");
+        }}
         className="flex items-center justify-between  border-black border-2 hover:border-3  rounded-xl p-3 w-full"
       >
         <img className="h-16 object-contain" src={Auto} alt="Auto" />
@@ -89,6 +97,6 @@ const VechielPanal = (props) => {
       </div>
     </div>
   );
-}
+};
 
-export default VechielPanal
+export default VechielPanal;

@@ -12,7 +12,7 @@ import ConfirmRidePanal from "../Components/ConfirmRidePanal";
 import homeImg from "../assets/HomeImg.gif";
 import LookingForDriver from "../Components/LookingForDriver";
 import WaitingForDriver from "../Components/WaitingForDriver";
-
+// import ConfirmRidePopUp from "../Components/ConfirmRidePopUp";
 
 const Home = () => {
   const [pickupLocation, setPickupLocation] = useState("");
@@ -32,7 +32,8 @@ const Home = () => {
   const [activeField, setActiveField] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [fare, setFare] = useState({})
+  const [fare, setFare] = useState({});
+  const [vehicleType, setVehicleType] = useState(null);
 
   const fetchSuggestions = async (value) => {
     if (!value.trim()) {
@@ -168,26 +169,53 @@ const Home = () => {
     }
   }, [waitingForDriver]);
 
- async function findtrip(){
-   const response = await axios.get(
-     `${import.meta.env.VITE_BASE_URL}/rides/getfare`,
-     {
-      params: {
-       pickup:pickupLocation,
-       destination:destination
-},
-       headers: {
-         Authorization: `Bearer ${localStorage.getItem("token")}`,
+ async function findtrip() {
+   try {
+     const response = await axios.get(
+       `${import.meta.env.VITE_BASE_URL}/rides/getfare`,
+       {
+         params: {
+           pickup: pickupLocation,
+           destination: destination,
+         },
+         headers: {
+           Authorization: `Bearer ${localStorage.getItem("token")}`,
+         },
        },
-     },
-   );
-   console.log(response.data)
-   
-   setFare(response.data);
-   setVechielPanal(true);
-   setPanelOpen(false);
+     );
 
+     console.log("Fare Response:", response.data);
+
+     setFare(response.data);
+     setVechielPanal(true);
+     setPanelOpen(false);
+   } catch (error) {
+     console.log(error.response?.data || error.message);
+   }
+ }
+
+  async function createride() {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/rides/create`,
+        {
+          pickup: pickupLocation,
+          destination,
+          vehicleType,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+        console.log(response.data);
+    } catch (err) {
+      console.log(err.response?.data);
+    }
+   
   }
+
 
   return (
     <div className=" w-screen h-screen relative overflow-hidden">
@@ -256,11 +284,9 @@ const Home = () => {
               type="button"
               onClick={findtrip}
               className="w-full bg-black text-white text-2xl py-2 rounded-lg mt-4"
-              
             >
               Find
             </button>
-            
           </form>
         </div>
 
@@ -280,6 +306,7 @@ const Home = () => {
           <VechielPanal
             fare={fare}
             setFare={setFare}
+            selectVehicle={setVehicleType}
             setVechielPanal={setVechielPanal}
             setConfirmRidePanal={setConfirmRidePanal}
           />
@@ -290,15 +317,26 @@ const Home = () => {
           className="ref= bg-white fixed bottom-0  w-full p-2 space-y-3  translate-y-full"
         >
           <ConfirmRidePanal
+            createride={createride}
             setvechielFound={setVechielFound}
             setConfirmRidePanal={setConfirmRidePanal}
+            pickup={pickupLocation}
+            destination={destination}
+            fare={fare}
+            vehicleType={vehicleType}
           />
         </div>
         <div
           ref={vechielFoundRef}
           className="ref= bg-white fixed bottom-0  w-full p-2 space-y-3  translate-y-full"
         >
-          <LookingForDriver setvechielFound={setVechielFound} />
+          <LookingForDriver
+            setvechielFound={setVechielFound}
+            pickup={pickupLocation}
+            destination={destination}
+            fare={fare}
+            vehicleType={vehicleType}
+          />
         </div>
 
         <div

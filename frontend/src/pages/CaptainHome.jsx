@@ -5,7 +5,7 @@ import { useGSAP } from "@gsap/react";
 import CaptainDetails from "../Components/CaptainDetails";
 import RidePopUp from "../Components/RidePopUp";
 import { useState } from "react";
-import ConfirmRidePopUp from "../Components/ConfirmRidePopUp ";
+import ConfirmRidePopUp from "../Components/ConfirmRidePopUp";
  
 
 
