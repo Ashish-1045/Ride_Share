@@ -23,9 +23,9 @@ const CaptainContext = ({children}) => {
         error,
         setError,
         updateCaptain
-    
+
     }
-     
+
   return (
     <CaptainDataContext.Provider value={value}>
       {children}
@@ -34,3 +34,4 @@ const CaptainContext = ({children}) => {
 }
 
 export default CaptainContext;
+

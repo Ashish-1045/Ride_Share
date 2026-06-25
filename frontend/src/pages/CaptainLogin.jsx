@@ -11,36 +11,51 @@ const CaptainLogin = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  const { captain, setCaptain } = useContext(CaptainDataContext);
+  // const Submithandler = async (e) => {
+  //   e.preventDefault();
+  //   setEmail("");
+  //   setPassword("");
+  //   const captainData = {
+  //     email: email,
+  //     password: password,
+  //   };
 
-  const Submithandler = (e) => {
+  // try{
+  // const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/captains/login`, captainData, {
+  // }).then((response) => {
+  //   if (response.status === 200){
+  //     const data = response.data;
+  //     setCaptain(data.captain);
+  //     localStorage.setItem("token", data.token);
+  //     navigate("/CaptainHome");
+  // }
+  // });
+  //   }catch (error) {
+  //     console.error("Login failed:", error);
+  //   }
+  // };
+
+  const Submithandler = async (e) => {
     e.preventDefault();
-    setEmail("");
-    setPassword("");
-    const captainData = {
-      email: email,
-      password: password,
-    };
 
-  try{    
-  const response = axios.post(`${import.meta.env.VITE_BASE_URL}/captains/login`, captainData, {
-  }).then((response) => {
-    if (response.status === 200){
-      const data = response.data;
-      setCaptain(data.captain);
-      localStorage.setItem("token", data.token);
-      navigate("/CaptainHome");
-  }
-  });
-    }catch (error) {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/captains/login`,
+        { email, password },
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        setCaptain(data.captain);
+        localStorage.setItem("token", data.token);
+        navigate("/CaptainHome");
+      }
+    } catch (error) {
       console.error("Login failed:", error);
     }
   };
 
-  const {captain, setCaptain} = useContext(CaptainDataContext);
-
-
-
-  
   return (
     <div className="flex flex-col items-center justify-between min-h-screen bg-gray-100">
       <div className=" w-full p-7 flex flex-col items-center justify-center">

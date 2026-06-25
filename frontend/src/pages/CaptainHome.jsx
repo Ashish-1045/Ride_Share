@@ -1,4 +1,7 @@
-import React, { useRef } from "react";
+/* eslint-disable no-unused-vars */
+import React, { useRef }from "react";
+import { useContext } from "react";
+import { CaptainDataContext} from "../context/CaptainContext";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -6,10 +9,11 @@ import CaptainDetails from "../Components/CaptainDetails";
 import RidePopUp from "../Components/RidePopUp";
 import { useState } from "react";
 import ConfirmRidePopUp from "../Components/ConfirmRidePopUp";
- 
 
 
 const CaptainHome = () => {
+
+  const {captain} = useContext(CaptainDataContext);
 
   const [ridePopUpPanal, setRidePopUpPanal] = useState(true);
     const [ConfirmridePopUpPanal, setConfirmRidePopUpPanal] = useState(false);
