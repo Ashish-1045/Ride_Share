@@ -12,29 +12,6 @@ const CaptainLogin = () => {
   const navigate = useNavigate();
 
   const { captain, setCaptain } = useContext(CaptainDataContext);
-  // const Submithandler = async (e) => {
-  //   e.preventDefault();
-  //   setEmail("");
-  //   setPassword("");
-  //   const captainData = {
-  //     email: email,
-  //     password: password,
-  //   };
-
-  // try{
-  // const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/captains/login`, captainData, {
-  // }).then((response) => {
-  //   if (response.status === 200){
-  //     const data = response.data;
-  //     setCaptain(data.captain);
-  //     localStorage.setItem("token", data.token);
-  //     navigate("/CaptainHome");
-  // }
-  // });
-  //   }catch (error) {
-  //     console.error("Login failed:", error);
-  //   }
-  // };
 
   const Submithandler = async (e) => {
     e.preventDefault();

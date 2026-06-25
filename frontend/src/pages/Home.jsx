@@ -12,6 +12,11 @@ import ConfirmRidePanal from "../Components/ConfirmRidePanal";
 import homeImg from "../assets/HomeImg.gif";
 import LookingForDriver from "../Components/LookingForDriver";
 import WaitingForDriver from "../Components/WaitingForDriver";
+import { useContext } from "react";
+import SocketContextProvider from "../context/SocketContext";
+import { useEffect } from "react";
+import { UserDataContext } from "../context/UserContext";
+import { useSocket } from "../context/SocketContext";
 // import ConfirmRidePopUp from "../Components/ConfirmRidePopUp";
 
 const Home = () => {
@@ -28,13 +33,21 @@ const Home = () => {
   const [vechielPanal, setVechielPanal] = useState(false);
   const [vechielFound, setVechielFound] = useState(false);
   const [waitingForDriver, setWaitingForDriver] = useState(false);
-
   const [activeField, setActiveField] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fare, setFare] = useState({});
   const [vehicleType, setVehicleType] = useState(null);
 
+  const { sendMessageToEvent, receiveMessageFromEvent, isConnected } =
+    useSocket();
+  const { user } = useContext(UserDataContext);
+
+  useEffect(() => {
+    if (!isConnected || !user?._id) return;
+
+    sendMessageToEvent("join", { userType: "user", userId: user._id });
+  }, [isConnected, user]); 
   const fetchSuggestions = async (value) => {
     if (!value.trim()) {
       setSuggestions([]);
@@ -169,30 +182,30 @@ const Home = () => {
     }
   }, [waitingForDriver]);
 
- async function findtrip() {
-   try {
-     const response = await axios.get(
-       `${import.meta.env.VITE_BASE_URL}/rides/getfare`,
-       {
-         params: {
-           pickup: pickupLocation,
-           destination: destination,
-         },
-         headers: {
-           Authorization: `Bearer ${localStorage.getItem("token")}`,
-         },
-       },
-     );
+  async function findtrip() {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/rides/getfare`,
+        {
+          params: {
+            pickup: pickupLocation,
+            destination: destination,
+          },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
 
-     console.log("Fare Response:", response.data);
+      console.log("Fare Response:", response.data);
 
-     setFare(response.data);
-     setVechielPanal(true);
-     setPanelOpen(false);
-   } catch (error) {
-     console.log(error.response?.data || error.message);
-   }
- }
+      setFare(response.data);
+      setVechielPanal(true);
+      setPanelOpen(false);
+    } catch (error) {
+      console.log(error.response?.data || error.message);
+    }
+  }
 
   async function createride() {
     try {
@@ -209,13 +222,11 @@ const Home = () => {
           },
         },
       );
-        console.log(response.data);
+      console.log(response.data);
     } catch (err) {
       console.log(err.response?.data);
     }
-   
   }
-
 
   return (
     <div className=" w-screen h-screen relative overflow-hidden">

@@ -1,0 +1,89 @@
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+} from "react";
+import { io } from "socket.io-client";
+
+const SocketContext = createContext(null);
+
+export const useSocket = () => useContext(SocketContext);
+
+const SocketContextProvider = ({ children }) => {
+  const socketRef = useRef(null);
+  const [isConnected, setIsConnected] = useState(false); // ✅ reactive state
+  const socketUrl = import.meta.env.VITE_BASE_URL;
+
+  useEffect(() => {
+    const socket = io(socketUrl, {
+      transports: ["websocket"],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
+
+    socketRef.current = socket;
+
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id);
+      setIsConnected(true); // ✅ triggers re-render with correct state
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected");
+      setIsConnected(false); // ✅ reflects real status
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error);
+      setIsConnected(false);
+    });
+
+    return () => {
+      socket.disconnect();
+      socketRef.current = null;
+      setIsConnected(false);
+    };
+  }, [socketUrl]);
+
+  // ✅ useCallback so these are stable references across renders
+  const sendMessageToEvent = useCallback((eventName, data) => {
+    if (!socketRef.current?.connected) {
+      console.warn("Socket not connected yet.");
+      return false;
+    }
+    socketRef.current.emit(eventName, data);
+    return true;
+  }, []);
+
+  const receiveMessageFromEvent = useCallback((eventName, callback) => {
+    if (!socketRef.current) {
+      console.warn("Socket not initialized yet.");
+      return () => {};
+    }
+    const listener = (data) => callback(data);
+    socketRef.current.on(eventName, listener);
+
+    return () => {
+      socketRef.current?.off(eventName, listener); // ✅ cleanup still works
+    };
+  }, []);
+
+  return (
+    <SocketContext.Provider
+      value={{
+        socket: socketRef.current,
+        isConnected, // ✅ now actually reactive
+        sendMessageToEvent,
+        receiveMessageFromEvent,
+      }}
+    >
+      {children}
+    </SocketContext.Provider>
+  );
+};
+
+export default SocketContextProvider;

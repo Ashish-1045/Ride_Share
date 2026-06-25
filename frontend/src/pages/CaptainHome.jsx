@@ -9,11 +9,14 @@ import CaptainDetails from "../Components/CaptainDetails";
 import RidePopUp from "../Components/RidePopUp";
 import { useState } from "react";
 import ConfirmRidePopUp from "../Components/ConfirmRidePopUp";
-
+import { useSocket } from "../context/SocketContext";
+import { useEffect } from "react";
 
 const CaptainHome = () => {
-
+    const { sendMessageToEvent, isConnected } = useSocket();
   const {captain} = useContext(CaptainDataContext);
+
+  
 
   const [ridePopUpPanal, setRidePopUpPanal] = useState(true);
     const [ConfirmridePopUpPanal, setConfirmRidePopUpPanal] = useState(false);
@@ -47,8 +50,42 @@ const CaptainHome = () => {
       });
     }
   }, [ConfirmridePopUpPanal]);
+   
 
+ useEffect(() => {
+   if (!isConnected || !captain?._id) return;
 
+   // ✅ Send location immediately on connect
+   const sendLocation = () => {
+     navigator.geolocation.getCurrentPosition(
+       (position) => {
+         sendMessageToEvent("update-location-captain", {
+           userId: captain._id,
+           location: {
+             ltd: position.coords.latitude,
+             lng: position.coords.longitude,
+           },
+         });
+         console.log(
+           "✅ Location sent:",
+           position.coords.latitude,
+           position.coords.longitude,
+         );
+       },
+       (error) => {
+         console.error("❌ Location error:", error.message);
+       },
+     );
+   };
+
+   sendLocation(); // send immediately
+
+   // ✅ Then every 10 seconds
+   const interval = setInterval(sendLocation, 10000);
+
+   // ✅ Cleanup on unmount
+   return () => clearInterval(interval);
+ }, [isConnected, captain]);
   return (
     <div className="w-full h-screen flex flex-col overflow-hidden ">
       <div className="fixed  top-0 left-0 w-full  flex items-center justify-between px-4 py-3">
