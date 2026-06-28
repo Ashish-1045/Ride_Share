@@ -18,7 +18,7 @@ function InitializeSokect(server) {
     socket.on("join", async (data) => {
       console.log("✅ Join received:", data);
       const { userType, userId } = data;
-
+      if (!userId || !userType) return;
       if (userType === "user") {
         await userModel.findByIdAndUpdate(userId, { socketId: socket.id });
         console.log(`✅ User ${userId} socketId updated`);
@@ -28,20 +28,20 @@ function InitializeSokect(server) {
       }
     });
 
-     socket.on("update-location-captain", async (data) => {
-       const { userId, location } = data;
+    socket.on("update-location-captain", async (data) => {
+      const { userId, location } = data;
 
-       if (!location || !location.ltd || !location.lng) {
-         return socket.emit("error", { message: "Invalid location" });
-       }
+      if (!location.ltd || !location.lng) {
+        return socket.emit("error", { message: "Invalid location" });
+      }
 
-       await captainModel.findByIdAndUpdate(userId, {
-         location: {
-           ltd: location.ltd,
-           lng: location.lng,
-         },
-       });
-     });
+      await captainModel.findByIdAndUpdate(userId, {
+        location: {
+          type: "Point",
+          coordinates: [location.lng, location.ltd],
+        },
+      });
+    });
 
     socket.on("disconnect", () => {
       console.log("Socket disconnected:", socket.id);

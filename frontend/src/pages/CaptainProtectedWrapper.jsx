@@ -5,7 +5,7 @@ import { useEffect, useContext, useState } from "react";
 import axios from "axios";
 
 const CaptainProtectedWrapper = ({ children }) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("captainToken");
   const navigate = useNavigate();
   const { setCaptain } = useContext(CaptainDataContext);
   const [isLoading, setIsLoading] = useState(true);

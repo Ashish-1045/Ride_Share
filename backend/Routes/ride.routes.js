@@ -6,6 +6,8 @@ const { query } = require("express-validator");
 const ridecontroller = require("../controllers/ride.controller");
 const { authuser } = require("../middlewares/auth.middleware");
 
+
+
 router.post(
   "/create",
   authuser,
@@ -27,7 +29,6 @@ router.post(
 
   ridecontroller.createRide,
 );
-
 
 router.get(
   "/getfare",

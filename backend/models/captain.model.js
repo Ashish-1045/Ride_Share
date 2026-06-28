@@ -59,15 +59,20 @@ const captainSchema = new mongoose.Schema({
       enum: ["car", "motorcycle", "auto"],
     },
   },
+
   location: {
-    ltd: {
-      type: Number,
+    type: {
+      type: String,
+      enum: ["Point"],
+      default: "Point",
     },
-    lng: {
-      type: Number,
+    coordinates: {
+      type: [Number],
+      default: [0, 0],
     },
   },
 });
+captainSchema.index({ location: "2dsphere" });
 
 captainSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();

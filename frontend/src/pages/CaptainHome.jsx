@@ -55,35 +55,23 @@ const CaptainHome = () => {
  useEffect(() => {
    if (!isConnected || !captain?._id) return;
 
-   // ✅ Send location immediately on connect
-   const sendLocation = () => {
-     navigator.geolocation.getCurrentPosition(
-       (position) => {
-         sendMessageToEvent("update-location-captain", {
-           userId: captain._id,
-           location: {
-             ltd: position.coords.latitude,
-             lng: position.coords.longitude,
-           },
-         });
-         console.log(
-           "✅ Location sent:",
-           position.coords.latitude,
-           position.coords.longitude,
-         );
+ const sendLocation = () => {
+   navigator.geolocation.getCurrentPosition((position) => {
+     sendMessageToEvent("update-location-captain", {
+       userId: captain._id,
+       location: {
+         ltd: position.coords.latitude,
+         lng: position.coords.longitude,
        },
-       (error) => {
-         console.error("❌ Location error:", error.message);
-       },
-     );
-   };
+     });
+   });
+ };
 
-   sendLocation(); // send immediately
+   sendLocation(); 
 
-   // ✅ Then every 10 seconds
    const interval = setInterval(sendLocation, 10000);
 
-   // ✅ Cleanup on unmount
+  
    return () => clearInterval(interval);
  }, [isConnected, captain]);
   return (

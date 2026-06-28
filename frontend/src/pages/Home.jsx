@@ -38,16 +38,16 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [fare, setFare] = useState({});
   const [vehicleType, setVehicleType] = useState(null);
-
   const { sendMessageToEvent, receiveMessageFromEvent, isConnected } =
     useSocket();
   const { user } = useContext(UserDataContext);
+  const debounceTimerRef = useRef(null);
 
   useEffect(() => {
     if (!isConnected || !user?._id) return;
 
     sendMessageToEvent("join", { userType: "user", userId: user._id });
-  }, [isConnected, user]); 
+  }, [isConnected, user]);
   const fetchSuggestions = async (value) => {
     if (!value.trim()) {
       setSuggestions([]);
@@ -103,6 +103,17 @@ const Home = () => {
   const SubmitHandler = (e) => {
     e.preventDefault();
   };
+
+
+
+const handleInputChange = (setter, value) => {
+  setter(value);
+  clearTimeout(debounceTimerRef.current);       // cancel previous timer
+  debounceTimerRef.current = setTimeout(() => { // start new one
+    fetchSuggestions(value);
+  }, 300);
+};
+
 
   useGSAP(() => {
     if (panalOpen) {
@@ -272,6 +283,7 @@ const Home = () => {
               onChange={(e) => {
                 setPickupLocation(e.target.value);
                 fetchSuggestions(e.target.value);
+                handleInputChange(setPickupLocation, e.target.value)
               }}
               className="bg-[#eee] px-9 w-full py-2 text-lg rounded-xl mt-4"
               type="text"
@@ -286,11 +298,13 @@ const Home = () => {
               onChange={(e) => {
                 setDestination(e.target.value);
                 fetchSuggestions(e.target.value);
+                handleInputChange(setDestination, e.target.value)
               }}
               className="bg-[#eee] px-9 w-full py-2 text-lg rounded-xl mt-4"
               type="text"
               placeholder="Enter your destination"
             />
+            
             <button
               type="button"
               onClick={findtrip}
@@ -312,7 +326,7 @@ const Home = () => {
 
         <div
           ref={vechielPanalRef}
-          className="ref= bg-white fixed bottom-0  w-full p-2 space-y-3  translate-y-full"
+          className=" bg-white fixed bottom-0  w-full p-2 space-y-3  translate-y-full"
         >
           <VechielPanal
             fare={fare}
@@ -339,7 +353,7 @@ const Home = () => {
         </div>
         <div
           ref={vechielFoundRef}
-          className="ref= bg-white fixed bottom-0  w-full p-2 space-y-3  translate-y-full"
+          className="bg-white fixed bottom-0  w-full p-2 space-y-3  translate-y-full"
         >
           <LookingForDriver
             setvechielFound={setVechielFound}
@@ -359,6 +373,6 @@ const Home = () => {
       </div>
     </div>
   );
-};
+};;
 
 export default Home;

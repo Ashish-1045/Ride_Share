@@ -1,5 +1,5 @@
 const axios = require("axios");
-const captainModel =require('../models/captain.model')
+const captainModel = require("../models/captain.model");
 
 module.exports.getAddressCoordinate = async (address) => {
   try {
@@ -21,10 +21,7 @@ module.exports.getAddressCoordinate = async (address) => {
       throw new Error("Address not found");
     }
 
-    return {
-      lat: response.data[0].lat,
-      lng: response.data[0].lon,
-    };
+    return { ltd: response.data[0].lat, lng: response.data[0].lon };
   } catch (error) {
     throw error;
   }
@@ -72,33 +69,31 @@ module.exports.getSuggestions = async (input) => {
     const response = await axios.get(
       "https://api.geoapify.com/v1/geocode/autocomplete",
       {
-        params: {
-          text: input,
-          limit: 5,
-          apiKey: process.env.GEOAPIFY_API_KEY,
-        },
+        params: { text: input, limit: 5, apiKey: process.env.GEOAPIFY_API_KEY },
+        timeout: 5000,
       },
     );
 
-  return response.data.features.map((place) => ({
-    displayName: place.properties.formatted,
-    fullAddress: place.properties.formatted,
-    lat: place.properties.lat,
-    lng: place.properties.lon,
-  }));
+    return response.data.features.map((place) => ({
+      displayName: place.properties.formatted,
+      fullAddress: place.properties.formatted,
+      lat: place.properties.lat,
+      lng: place.properties.lon,
+    }));
   } catch (error) {
     console.error(error.response?.data || error);
     throw new Error("Unable to fetch suggestions");
   }
 };
 
-module.exports.getCaptainInTheRadius = async (ltd,lng,radius)=>{
-  const captain = await captainModel.find({
-    location:{
-      $geoWithin :{
-        $centerSphere:[[ltd,lng], radius/3963.2]
-      }
-    }
-  })
-  return captain
-}
+module.exports.getCaptainInTheRadius = async (ltd, lng, radius) => {
+  const captains = await captainModel.find({
+    location: {
+      $geoWithin: {
+        $centerSphere: [[lng, ltd], radius / 6371],
+      },
+    },
+  });
+  console.log("👥 Found captains:", captains.length);
+  return captains;
+};
