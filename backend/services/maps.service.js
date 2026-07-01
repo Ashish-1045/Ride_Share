@@ -21,7 +21,7 @@ module.exports.getAddressCoordinate = async (address) => {
       throw new Error("Address not found");
     }
 
-    return { ltd: response.data[0].lat, lng: response.data[0].lon };
+    return { lat: response.data[0].lat, lng: response.data[0].lon };
   } catch (error) {
     throw error;
   }

@@ -16,7 +16,7 @@ const CaptainDetails = () => {
             alt=""
           />
           <h4 className="font-semibold text-xl ">
-            {captain?.fullname.firstname +" " +captain.fullname.lastname}
+            {captain?.fullname?.firstname} {captain?.fullname?.lastname}
           </h4>
         </div>
         <div>

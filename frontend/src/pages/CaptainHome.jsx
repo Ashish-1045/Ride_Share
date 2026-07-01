@@ -12,8 +12,14 @@ import ConfirmRidePopUp from "../Components/ConfirmRidePopUp";
 import { useSocket } from "../context/SocketContext";
 import { useEffect } from "react";
 
+
+
 const CaptainHome = () => {
-    const { sendMessageToEvent, isConnected } = useSocket();
+    const {
+   sendMessageToEvent,
+   receiveMessageFromEvent,
+   isConnected
+} = useSocket();
   const {captain} = useContext(CaptainDataContext);
 
   
@@ -22,6 +28,8 @@ const CaptainHome = () => {
     const [ConfirmridePopUpPanal, setConfirmRidePopUpPanal] = useState(false);
   const RidePopUpPanalRef =  useRef(null)
   const ConfirmRidePopUpPanalRef = useRef(null)
+
+  
 
   useGSAP(() => {
     if (ridePopUpPanal) {
@@ -52,28 +60,48 @@ const CaptainHome = () => {
   }, [ConfirmridePopUpPanal]);
    
 
- useEffect(() => {
-   if (!isConnected || !captain?._id) return;
+  useEffect(() => {
+    if (!isConnected || !captain?._id) return;
 
- const sendLocation = () => {
-   navigator.geolocation.getCurrentPosition((position) => {
-     sendMessageToEvent("update-location-captain", {
-       userId: captain._id,
-       location: {
-         ltd: position.coords.latitude,
-         lng: position.coords.longitude,
-       },
-     });
-   });
- };
+    // Join socket
+    sendMessageToEvent("join", {
+      userType: "captain",
+      userId: captain._id,
+    });
 
-   sendLocation(); 
+    const sendLocation = () => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          sendMessageToEvent("update-location-captain", {
+            userId: captain._id,
+            location: {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            },
+          });
+        },
+        (error) => {
+          console.error("Geolocation Error:", error);
+        },
+      );
+    };
 
-   const interval = setInterval(sendLocation, 10000);
+    sendLocation();
 
-  
-   return () => clearInterval(interval);
- }, [isConnected, captain]);
+    const interval = setInterval(sendLocation, 10000);
+
+    const unsubscribe = receiveMessageFromEvent("new-ride", (ride) => {
+      console.log("🚖 New Ride:", ride);
+      setRidePopUpPanal(true);
+    });
+
+    return () => {
+      clearInterval(interval);
+      unsubscribe();
+    };
+  }, [isConnected, captain, sendMessageToEvent, receiveMessageFromEvent]);
+
+
   return (
     <div className="w-full h-screen flex flex-col overflow-hidden ">
       <div className="fixed  top-0 left-0 w-full  flex items-center justify-between px-4 py-3">

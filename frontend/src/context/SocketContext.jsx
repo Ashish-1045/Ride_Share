@@ -68,7 +68,7 @@ const SocketContextProvider = ({ children }) => {
     socketRef.current.on(eventName, listener);
 
     return () => {
-      socketRef.current?.off(eventName, listener); // ✅ cleanup still works
+      socketRef.current?.off(eventName, listener); 
     };
   }, []);
 

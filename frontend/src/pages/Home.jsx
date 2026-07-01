@@ -75,6 +75,8 @@ const Home = () => {
     } catch (error) {
       console.log("Suggestions Error:", error.response?.data || error.message);
       setSuggestions([]);
+      const token = localStorage.getItem("token");
+      console.log("Token:", token);
     } finally {
       setIsLoading(false);
     }
@@ -104,15 +106,6 @@ const Home = () => {
     e.preventDefault();
   };
 
-
-
-const handleInputChange = (setter, value) => {
-  setter(value);
-  clearTimeout(debounceTimerRef.current);       // cancel previous timer
-  debounceTimerRef.current = setTimeout(() => { // start new one
-    fetchSuggestions(value);
-  }, 300);
-};
 
 
   useGSAP(() => {
@@ -283,7 +276,6 @@ const handleInputChange = (setter, value) => {
               onChange={(e) => {
                 setPickupLocation(e.target.value);
                 fetchSuggestions(e.target.value);
-                handleInputChange(setPickupLocation, e.target.value)
               }}
               className="bg-[#eee] px-9 w-full py-2 text-lg rounded-xl mt-4"
               type="text"
@@ -298,7 +290,6 @@ const handleInputChange = (setter, value) => {
               onChange={(e) => {
                 setDestination(e.target.value);
                 fetchSuggestions(e.target.value);
-                handleInputChange(setDestination, e.target.value)
               }}
               className="bg-[#eee] px-9 w-full py-2 text-lg rounded-xl mt-4"
               type="text"
