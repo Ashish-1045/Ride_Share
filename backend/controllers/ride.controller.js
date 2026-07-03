@@ -100,3 +100,23 @@ module.exports.getfare = async (req, res, next) => {
     next(error);
   }
 };
+
+module.exports.confirmRide = async (req, res, next) => {    
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  } 
+  try{
+    const ride = await rideService.confirmRide(req.body.rideId, req.captain._id);
+    res.status(200).json({ message: "Ride confirmed successfully", ride })
+
+    sendMessageToSocketId(ride.user.socketId, {
+      event: "ride-confirmed",
+      data: ride,
+    });
+
+  }catch(error){
+    next(error);
+  }
+}

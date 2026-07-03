@@ -49,28 +49,33 @@ const SocketContextProvider = ({ children }) => {
     };
   }, [socketUrl]);
 
-  // ✅ useCallback so these are stable references across renders
   const sendMessageToEvent = useCallback((eventName, data) => {
-    if (!socketRef.current?.connected) {
-      console.warn("Socket not connected yet.");
-      return false;
-    }
-    socketRef.current.emit(eventName, data);
-    return true;
-  }, []);
+  console.log(
+    "📤 Event:",
+    eventName,
+    "| Connected:",
+    socketRef.current?.connected
+  );
 
-  const receiveMessageFromEvent = useCallback((eventName, callback) => {
-    if (!socketRef.current) {
-      console.warn("Socket not initialized yet.");
-      return () => {};
-    }
-    const listener = (data) => callback(data);
-    socketRef.current.on(eventName, listener);
+  if (!socketRef.current?.connected) {
+    return false; // warning hata do
+  }
 
-    return () => {
-      socketRef.current?.off(eventName, listener); 
-    };
-  }, []);
+  socketRef.current.emit(eventName, data);
+  return true;
+},[]);
+
+ const receiveMessageFromEvent = useCallback((eventName, callback) => {
+   const socket = socketRef.current;
+
+   if (!socket) return () => {};
+
+   socket.on(eventName, callback);
+
+   return () => {
+     socket.off(eventName, callback);
+   };
+ }, []);
 
   return (
     <SocketContext.Provider

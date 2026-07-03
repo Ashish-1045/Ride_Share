@@ -77,10 +77,13 @@ function InitializeSokect(server) {
               coordinates: [lng, lat], // MongoDB => [longitude, latitude]
             },
           },
-          { new: true },
+          { new: true }
         );
 
-        console.log("✅ Captain location saved:", updatedCaptain.location);
+        console.log(
+          "✅ Captain location saved:",
+          updatedCaptain.location
+        );
       } catch (err) {
         console.log("Location Update Error:", err.message);
       }
@@ -100,10 +103,10 @@ function InitializeSokect(server) {
 // =========================
 // SEND MESSAGE
 // =========================
-function sendMessageToSocketId(socketId, messageObject) {
+function sendMessageToSocketId(socketId, eventName, data) {
   if (!io) return false;
 
-  io.to(socketId).emit(messageObject.event, messageObject.data);
+  io.to(socketId).emit(eventName, data);
   return true;
 }
 

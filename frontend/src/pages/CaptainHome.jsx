@@ -24,12 +24,24 @@ const CaptainHome = () => {
 
   
 
-  const [ridePopUpPanal, setRidePopUpPanal] = useState(true);
+  const [ridePopUpPanal, setRidePopUpPanal] = useState(false);
     const [ConfirmridePopUpPanal, setConfirmRidePopUpPanal] = useState(false);
+    const [ride, setRide] = useState(null);
   const RidePopUpPanalRef =  useRef(null)
   const ConfirmRidePopUpPanalRef = useRef(null)
 
-  
+  async function confirmRide() {
+    try {
+      const response = await fetch(`{import.meta.env.VITE_API_URL}/rides/confirm`, {
+        method: "POST",
+        headers: {}
+      });
+      const data = await response.json();
+      console.log(" Ride confirmed:", data);
+    } catch (error) {
+      console.error("Error confirming ride:", error);
+    } 
+  }
 
   useGSAP(() => {
     if (ridePopUpPanal) {
@@ -63,13 +75,13 @@ const CaptainHome = () => {
   useEffect(() => {
     if (!isConnected || !captain?._id) return;
 
-    // Join socket
     sendMessageToEvent("join", {
       userType: "captain",
       userId: captain._id,
     });
 
     const sendLocation = () => {
+       if (!isConnected) return;
       navigator.geolocation.getCurrentPosition(
         (position) => {
           sendMessageToEvent("update-location-captain", {
@@ -137,6 +149,7 @@ const CaptainHome = () => {
         <RidePopUp
           setRidePopUpPanal={setRidePopUpPanal}
           setConfirmRidePopUpPanal={setConfirmRidePopUpPanal}
+          confirmRide = {confirmRide}
         />
       </div>
 

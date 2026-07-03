@@ -42,6 +42,7 @@ const Home = () => {
     useSocket();
   const { user } = useContext(UserDataContext);
   const debounceTimerRef = useRef(null);
+  const passanger = useRef(null);
 
   useEffect(() => {
     if (!isConnected || !user?._id) return;
@@ -340,6 +341,7 @@ const Home = () => {
             destination={destination}
             fare={fare}
             vehicleType={vehicleType}
+            passanger={passanger}
           />
         </div>
         <div
