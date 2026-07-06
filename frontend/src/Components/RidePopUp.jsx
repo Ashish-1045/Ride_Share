@@ -2,7 +2,8 @@ import React from 'react'
 import { useState } from 'react';
 
 const RidePopUp = (props) => {
-     const [OTP, setOTP] = useState('')
+  const { ride } = props
+  const [OTP, setOTP] = useState('')
        const SubmitHandler = (e) => {
          e.preventDefault();
        };
@@ -33,8 +34,8 @@ const RidePopUp = (props) => {
             alt=""
           />
           <h4 className="font-semibold text-xl ">
-            {props.ride?.user?.fullname?.firstname}{" "}
-            {props.ride?.user?.fullname?.lastname}
+            {ride?.user?.fullname?.firstname}{" "}
+            {ride?.user?.fullname?.lastname}
           </h4>
         </div>
 
@@ -50,7 +51,7 @@ const RidePopUp = (props) => {
             <i className="text-2xl text-bold ri-map-pin-user-fill"></i>
             <div className="flex flex-col ">
               <h2 className="text-lg font-bold ">562/11</h2>
-              <h4 className="font-semibold"> {props.ride?.pickupLocation}</h4>
+              <h4 className="font-semibold"> {ride?.pickup}</h4>
             </div>
           </div>
         </div>
@@ -59,7 +60,7 @@ const RidePopUp = (props) => {
             <i className="text-2xl text-bold ri-map-pin-fill"></i>
             <div className="flex flex-col ">
               <h2 className="text-lg font-bold ">562/11</h2>
-              <h4 className="font-semibold"> {props.ride?.destination}</h4>
+              <h4 className="font-semibold"> {ride?.destination}</h4>
             </div>
           </div>
         </div>
@@ -67,7 +68,7 @@ const RidePopUp = (props) => {
           <div className="flex items-center gap-6 ml-4 h-auto">
             <i className="text-2xl text-bold ri-currency-line"></i>
             <div className="flex flex-col ">
-              <h2 className="text-lg font-bold "> {props.ride?.fare}</h2>
+              <h2 className="text-lg font-bold "> {ride?.fare}</h2>
               <h4 className="font-semibold"> cash on delivery</h4>
             </div>
           </div>

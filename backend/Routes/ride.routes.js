@@ -2,12 +2,9 @@ const express = require("express");
 const router = express.Router();
 const { body } = require("express-validator");
 const { query } = require("express-validator");
-
 const ridecontroller = require("../controllers/ride.controller");
 const { authuser } = require("../middlewares/auth.middleware");
-const {authcaptain} = require("../middlewares/auth.middleware");
-
-
+const { authCaptain } = require("../middlewares/auth.middleware");
 
 router.post(
   "/create",
@@ -33,7 +30,7 @@ router.post(
 
 router.get(
   "/getfare",
-  
+
   query("pickup")
     .isString()
     .isLength({ min: 3 })
@@ -49,8 +46,8 @@ router.get(
 
 router.post(
   "/confirm",
-  authcaptain,
+  authCaptain,
   body("rideId").isMongoId().withMessage("Invalid Ride ID"),
-  ridecontroller.confirmRide
+  ridecontroller.confirmRide,
 );
 module.exports = router;

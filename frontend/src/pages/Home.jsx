@@ -17,6 +17,7 @@ import SocketContextProvider from "../context/SocketContext";
 import { useEffect } from "react";
 import { UserDataContext } from "../context/UserContext";
 import { useSocket } from "../context/SocketContext";
+import { Socket } from "socket.io-client";
 // import ConfirmRidePopUp from "../Components/ConfirmRidePopUp";
 
 const Home = () => {
@@ -46,9 +47,20 @@ const Home = () => {
 
   useEffect(() => {
     if (!isConnected || !user?._id) return;
+   sendMessageToEvent("join", { userType: "user", userId: user._id });
+  }, [isConnected, user?._id, sendMessageToEvent]);
 
-    sendMessageToEvent("join", { userType: "user", userId: user._id });
-  }, [isConnected, user]);
+useEffect(() => {
+  const cleanup = receiveMessageFromEvent("ride-confirmed", (ride) => {
+    console.log("✅ Ride Confirmed:", ride);
+     
+    setWaitingForDriver(true);
+  });
+
+  return cleanup;
+}, [receiveMessageFromEvent]);
+
+
   const fetchSuggestions = async (value) => {
     if (!value.trim()) {
       setSuggestions([]);

@@ -4,7 +4,7 @@ const captainModel = require("./models/captain.model");
 
 let io;
 
-function InitializeSokect(server) {
+function InitializeSocket(server) {
   io = new Server(server, {
     cors: {
       origin: "*",
@@ -104,13 +104,15 @@ function InitializeSokect(server) {
 // SEND MESSAGE
 // =========================
 function sendMessageToSocketId(socketId, eventName, data) {
-  if (!io) return false;
+    if (!io) return;
 
-  io.to(socketId).emit(eventName, data);
-  return true;
-}
+    console.log("📨 Emit:", eventName);
+    console.log("Socket:", socketId);
+
+    io.to(socketId).emit(eventName, data);
+} 
 
 module.exports = {
-  InitializeSokect,
+  InitializeSocket,
   sendMessageToSocketId,
 };
