@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React from "react";
 import axios from "axios";
 import { useState } from "react";
@@ -13,12 +12,9 @@ import homeImg from "../assets/HomeImg.gif";
 import LookingForDriver from "../Components/LookingForDriver";
 import WaitingForDriver from "../Components/WaitingForDriver";
 import { useContext } from "react";
-import SocketContextProvider from "../context/SocketContext";
 import { useEffect } from "react";
 import { UserDataContext } from "../context/UserContext";
 import { useSocket } from "../context/SocketContext";
-import { Socket } from "socket.io-client";
-// import ConfirmRidePopUp from "../Components/ConfirmRidePopUp";
 
 const Home = () => {
   const [pickupLocation, setPickupLocation] = useState("");
@@ -42,24 +38,40 @@ const Home = () => {
   const { sendMessageToEvent, receiveMessageFromEvent, isConnected } =
     useSocket();
   const { user } = useContext(UserDataContext);
-  const debounceTimerRef = useRef(null);
   const passanger = useRef(null);
+  const userId = user?.id || user?._id;
 
   useEffect(() => {
-    if (!isConnected || !user?._id) return;
-   sendMessageToEvent("join", { userType: "user", userId: user._id });
-  }, [isConnected, user?._id, sendMessageToEvent]);
+    if (!isConnected || !userId) return;
 
-useEffect(() => {
-  const cleanup = receiveMessageFromEvent("ride-confirmed", (ride) => {
-    console.log("✅ Ride Confirmed:", ride);
-     
-    setWaitingForDriver(true);
-  });
+    sendMessageToEvent("join", { userType: "user", userId });
+  }, [isConnected, userId, sendMessageToEvent]);
 
-  return cleanup;
-}, [receiveMessageFromEvent]);
+  // useEffect(() => {
+  //   const cleanup = receiveMessageFromEvent("ride-confirmed", (ride) => {
+  //     console.log("✅ Ride Confirmed:", ride);
+  //     setWaitingForDriver(true);
+  //   });
 
+  //   return cleanup;
+  // }, [receiveMessageFromEvent]);
+
+  useEffect(() => {
+    const handleRideConfirmed = (ride) => {
+      console.log("✅ Ride Confirmed:", ride);
+      setWaitingForDriver(true);
+    };
+
+    const cleanup = receiveMessageFromEvent(
+      "ride-confirmed",
+      handleRideConfirmed,
+    );
+
+    return () => {
+      console.log("Cleaning up ride-confirmed listener");
+      cleanup();
+    };
+  }, [receiveMessageFromEvent]);
 
   const fetchSuggestions = async (value) => {
     if (!value.trim()) {
@@ -69,8 +81,6 @@ useEffect(() => {
 
     try {
       setIsLoading(true);
-
-      const token = localStorage.getItem("token");
 
       const response = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
@@ -118,8 +128,6 @@ useEffect(() => {
   const SubmitHandler = (e) => {
     e.preventDefault();
   };
-
-
 
   useGSAP(() => {
     if (panalOpen) {
@@ -308,7 +316,7 @@ useEffect(() => {
               type="text"
               placeholder="Enter your destination"
             />
-            
+
             <button
               type="button"
               onClick={findtrip}
@@ -378,6 +386,6 @@ useEffect(() => {
       </div>
     </div>
   );
-};;
+};
 
 export default Home;

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 
 import axios from "axios";
 import React, { useRef }from "react";
@@ -8,6 +9,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import CaptainDetails from "../Components/CaptainDetails";
 import RidePopUp from "../Components/RidePopUp";
+import ConfirmRidePopUp from "../Components/ConfirmRidePopUp";
 import { useState } from "react";
 import { useSocket } from "../context/SocketContext";
 import { useEffect } from "react";
@@ -35,7 +37,7 @@ async function confirmRide() {
     console.log("Ride not available");
     return;
   }
-
+  
   try {
     const response = await axios.post(
       `${import.meta.env.VITE_BASE_URL}/rides/confirm`,
@@ -44,7 +46,7 @@ async function confirmRide() {
       },
       {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("captainToken")}`,
         },
       },
     );
@@ -164,7 +166,6 @@ async function confirmRide() {
         ref={RidePopUpPanalRef}
         className=" bg-gray-100 fixed bottom-0  w-full p-2 space-y-3  translate-y-full"
       >
-       
         <RidePopUp
           ride={ride}
           setRidePopUpPanal={setRidePopUpPanal}
@@ -173,7 +174,16 @@ async function confirmRide() {
         />
       </div>
 
-      
+      <div
+        ref={ConfirmRidePopUpPanalRef}
+        className=" bg-gray-100 fixed bottom-0  w-full p-2 space-y-3  translate-y-full"
+      >
+        <ConfirmRidePopUp
+          ride={ride}
+          setConfirmRidePopUpPanal={setConfirmRidePopUpPanal}
+          confirmRide={confirmRide}
+        />
+      </div>
     </div>
   );
 };

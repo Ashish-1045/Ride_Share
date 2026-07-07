@@ -22,13 +22,11 @@ module.exports.createRide = async (req, res, next) => {
       vehicleType,
     });
 
-    // OTP frontend ko mat bhejo
     ride.otp = "";
 
-    // Pickup coordinates
     const pickupCoordinates = await mapsService.getAddressCoordinate(pickup);
 
-    // Nearby captains
+  
     const captainInRadius = await mapsService.getCaptainInTheRadius(
       pickupCoordinates.lat,
       pickupCoordinates.lng,
@@ -101,6 +99,7 @@ module.exports.getfare = async (req, res, next) => {
 };
 
 module.exports.confirmRide = async (req, res, next) => {
+
   try {
     const errors = validationResult(req);
 
@@ -115,7 +114,7 @@ module.exports.confirmRide = async (req, res, next) => {
       captain: req.captain._id,
     });
 
-    // User ko notify karo
+  
     if (ride.user && ride.user.socketId) {
       sendMessageToSocketId(ride.user.socketId, "ride-confirmed", ride);
     }
@@ -128,4 +127,3 @@ module.exports.confirmRide = async (req, res, next) => {
     next(error);
   }
 };
-  

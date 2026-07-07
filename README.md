@@ -1,34 +1,33 @@
 # 🚖 RideShare
 
-A Full Stack Ride Booking Application built using **React.js, Node.js, Express.js, MongoDB, Socket.io, and Google Maps APIs**.
+RideShare is a full-stack ride booking app built with React, Vite, Node.js, Express, MongoDB, Socket.IO, and Google Maps APIs. It supports user and captain flows for booking rides, estimating fares, and receiving real-time ride updates.
 
 ---
 
-## 📌 Features
+## ✨ Features
 
 ### User Features
 
-* User Registration & Login
-* JWT Authentication
-* Profile Management
-* Ride Booking
-* Fare Estimation
-* Location Search & Suggestions
-* Real-time Ride Tracking
+- User registration and login
+- JWT-based authentication
+- Ride booking and fare estimation
+- Location search and suggestions
+- Real-time ride confirmation updates
 
 ### Captain Features
 
-* Captain Registration & Login
-* Vehicle Registration
-* Ride Acceptance
-* Profile Management
-* Real-time Ride Updates
+- Captain registration and login
+- Vehicle details registration
+- Ride acceptance flow
+- Real-time new ride notifications
+- Live captain location updates
 
-### Maps Features
+### Real-Time Features
 
-* Address Autocomplete Suggestions
-* Distance & Duration Calculation
-* Coordinates Retrieval
+- Socket.IO-based join events
+- New ride events for captains
+- Ride confirmation events for users
+- Captain location updates
 
 ---
 
@@ -36,409 +35,73 @@ A Full Stack Ride Booking Application built using **React.js, Node.js, Express.j
 
 ### Frontend
 
-* React.js
-* Tailwind CSS
-* Axios
-* GSAP
+- React.js
+- Vite
+- Tailwind CSS
+- Axios
+- GSAP
+- Socket.IO Client
+- Remix Icon
 
 ### Backend
 
-* Node.js
-* Express.js
-* MongoDB
-* Mongoose
-* JWT Authentication
-* Socket.io
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- JWT Authentication
+- Socket.IO
 
 ### APIs
 
-* Google Maps API
-* Geocoding API
-* Places API
+- Google Maps API
+- Geocoding API
+- Places API
 
 ---
 
-# 📖 API Documentation
-
----
-
-## 👤 User Routes
-
-### Register User
-
-**Endpoint**
-
-```http
-POST /users/register
-```
-
-### Request Body
-
-```json
-{
-  "fullname": {
-    "firstname": "John",
-    "lastname": "Doe"
-  },
-  "email": "john@example.com",
-  "password": "123456"
-}
-```
-
-### Response
-
-```json
-{
-  "user": {},
-  "token": "JWT_TOKEN"
-}
-```
-
----
-
-### Login User
-
-**Endpoint**
-
-```http
-POST /users/login
-```
-
-### Request Body
-
-```json
-{
-  "email": "john@example.com",
-  "password": "123456"
-}
-```
-
-### Response
-
-```json
-{
-  "user": {},
-  "token": "JWT_TOKEN"
-}
-```
-
----
-
-### User Profile
-
-**Endpoint**
-
-```http
-GET /users/profile
-```
-
-### Authentication
-
-```http
-Authorization: Bearer <token>
-```
-
----
-
-### Logout User
-
-**Endpoint**
-
-```http
-GET /users/logout
-```
-
-### Authentication
-
-```http
-Authorization: Bearer <token>
-```
-
----
-
-## 🚗 Captain Routes
-
-### Register Captain
-
-**Endpoint**
-
-```http
-POST /captains/register
-```
-
-### Request Body
-
-```json
-{
-  "fullname": {
-    "firstname": "John",
-    "lastname": "Doe"
-  },
-  "email": "captain@example.com",
-  "password": "123456",
-  "vehicle": {
-    "color": "Black",
-    "plate": "MP09AB1234",
-    "capacity": 4,
-    "vehicleType": "car"
-  }
-}
-```
-
-### Response
-
-```json
-{
-  "captain": {},
-  "token": "JWT_TOKEN"
-}
-```
-
----
-
-### Login Captain
-
-**Endpoint**
-
-```http
-POST /captains/login
-```
-
-### Request Body
-
-```json
-{
-  "email": "captain@example.com",
-  "password": "123456"
-}
-```
-
----
-
-### Captain Profile
-
-**Endpoint**
-
-```http
-GET /captains/profile
-```
-
-### Authentication
-
-```http
-Authorization: Bearer <token>
-```
-
----
-
-### Logout Captain
-
-**Endpoint**
-
-```http
-GET /captains/logout
-```
-
-### Authentication
-
-```http
-Authorization: Bearer <token>
-```
-
----
-
-## 🗺️ Maps Routes
-
-### Get Coordinates
-
-**Endpoint**
-
-```http
-GET /maps/get-coordinates
-```
-
-### Query Parameters
-
-| Parameter | Type   | Required |
-| --------- | ------ | -------- |
-| address   | string | Yes      |
-
-### Example
-
-```http
-GET /maps/get-coordinates?address=1600+Amphitheatre+Parkway
-```
-
-### Response
-
-```json
-{
-  "lat": 37.4224764,
-  "lng": -122.0842499
-}
-```
-
----
-
-### Get Distance & Time
-
-**Endpoint**
-
-```http
-GET /maps/get-distance-time
-```
-
-### Query Parameters
-
-| Parameter   | Type   | Required |
-| ----------- | ------ | -------- |
-| origin      | string | Yes      |
-| destination | string | Yes      |
-
-### Example
-
-```http
-GET /maps/get-distance-time?origin=NewYork&destination=LosAngeles
-```
-
----
-
-### Get Suggestions
-
-**Endpoint**
-
-```http
-GET /maps/get-suggestions
-```
-
-### Query Parameters
-
-| Parameter | Type   | Required |
-| --------- | ------ | -------- |
-| input     | string | Yes      |
-
-### Example
-
-```http
-GET /maps/get-suggestions?input=1600+Amphitheatre
-```
-
----
-
-## 🚕 Ride Routes
-
-### Create Ride
-
-**Endpoint**
-
-```http
-POST /rides/create
-```
-
-### Authentication
-
-```http
-Authorization: Bearer <token>
-```
-
-### Request Body
-
-```json
-{
-  "pickup": "Bhopal",
-  "destination": "Indore",
-  "vehicleType": "car"
-}
-```
-
-### Response
-
-```json
-{
-  "ride": {},
-  "fare": 450,
-  "distance": 190,
-  "duration": 180,
-  "otp": "123456"
-}
-```
-
----
-
-### Get Fare Estimate
-
-**Endpoint**
-
-```http
-GET /rides/getfare
-```
-
-### Authentication
-
-```http
-Authorization: Bearer <token>
-```
-
-### Query Parameters
-
-| Parameter   | Type   | Required |
-| ----------- | ------ | -------- |
-| pickup      | string | Yes      |
-| destination | string | Yes      |
-
-### Example
-
-```http
-GET /rides/getfare?pickup=Bhopal&destination=Indore
-```
-
-### Response
-
-```json
-{
-  "auto": 250,
-  "car": 350,
-  "motorcycle": 180
-}
+## 📁 Project Structure
+
+```text
+RideShare/
+├── backend/
+│   ├── controllers/
+│   ├── db/
+│   ├── middlewares/
+│   ├── models/
+│   ├── Routes/
+│   ├── services/
+│   ├── app.js
+│   ├── server.js
+│   └── socketio.js
+└── Frontend/
+    ├── src/
+    │   ├── Components/
+    │   ├── context/
+    │   ├── pages/
+    │   └── main.jsx
+    └── package.json
 ```
 
 ---
 
 ## ⚙️ Installation
 
-### Clone Repository
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/RideShare.git
+git clone https://github.com/Ashish-1045/Ride_Share.git
+cd RideShare
 ```
 
-### Install Dependencies
-
-```bash
-npm install
-```
-
-### Backend Setup
+### 2. Backend setup
 
 ```bash
 cd backend
 npm install
-npm start
 ```
 
-### Frontend Setup
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
----
-
-## 🔐 Environment Variables
-
-Create a `.env` file in backend:
+Create a `.env` file inside the backend folder:
 
 ```env
 PORT=4000
@@ -446,6 +109,151 @@ MONGODB_URI=your_mongodb_uri
 JWT_SECRET=your_secret_key
 GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 ```
+
+Start the backend server:
+
+```bash
+node server.js
+```
+
+### 3. Frontend setup
+
+```bash
+cd ../Frontend
+npm install
+npm run dev
+```
+
+Create a `.env` file inside the Frontend folder if needed:
+
+```env
+VITE_BASE_URL=http://localhost:4000
+```
+
+---
+
+## 📖 API Routes
+
+### User Routes
+
+#### Register User
+
+```http
+POST /users/register
+```
+
+Request body:
+
+```json
+{
+  "fullname": {
+    "firstname": "John",
+    "lastname": "Doe"
+  },
+  "email": "john@example.com",
+  "password": "123456"
+}
+```
+
+#### Login User
+
+```http
+POST /users/login
+```
+
+#### Get User Profile
+
+```http
+GET /users/profile
+```
+
+#### Logout User
+
+```http
+GET /users/logout
+```
+
+### Captain Routes
+
+#### Register Captain
+
+```http
+POST /captains/register
+```
+
+#### Login Captain
+
+```http
+POST /captains/login
+```
+
+#### Get Captain Profile
+
+```http
+GET /captains/profile
+```
+
+#### Logout Captain
+
+```http
+GET /captains/logout
+```
+
+### Maps Routes
+
+#### Get Coordinates
+
+```http
+GET /maps/get-coordinates?address=1600+Amphitheatre+Parkway
+```
+
+#### Get Distance & Time
+
+```http
+GET /maps/get-distance-time?origin=NewYork&destination=LosAngeles
+```
+
+#### Get Suggestions
+
+```http
+GET /maps/get-suggestions?input=1600+Amphitheatre
+```
+
+### Ride Routes
+
+#### Create Ride
+
+```http
+POST /rides/create
+```
+
+#### Get Fare Estimate
+
+```http
+GET /rides/getfare
+```
+
+#### Confirm Ride
+
+```http
+POST /rides/confirm
+```
+
+---
+
+## 🔌 Socket Events
+
+The app uses Socket.IO for real-time communication.
+
+### Client to Server
+
+- `join` — joins a user or captain room using their user id
+- `update-location-captain` — sends captain live location
+
+### Server to Client
+
+- `new-ride` — sent to nearby captains when a ride is created
+- `ride-confirmed` — sent to the user when a captain accepts the ride
 
 ---
 

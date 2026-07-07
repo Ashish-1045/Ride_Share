@@ -27,10 +27,14 @@ const UserLogin = () => {
 
      if (response.status === 200) {
       const data = response.data;
-        setUser(data.user);
-         localStorage.setItem("token", data.user.token);
-        navigate("/Home");
-   
+      const normalizedUser = {
+        ...data.user,
+        _id: data.user._id || data.user.id,
+      };
+
+      setUser(normalizedUser);
+      localStorage.setItem("token", data.user.token);
+      navigate("/Home");
     }
     // console.log(setUserdata)
    
