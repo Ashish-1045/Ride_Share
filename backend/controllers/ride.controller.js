@@ -99,7 +99,6 @@ module.exports.getfare = async (req, res, next) => {
 };
 
 module.exports.confirmRide = async (req, res, next) => {
-
   try {
     const errors = validationResult(req);
 

@@ -3,6 +3,27 @@ const userModel = require("./models/user.model");
 const captainModel = require("./models/captain.model");
 
 let io;
+const activeSocketConnections = new Map();
+const socketToIdentity = new Map();
+
+function storeSocketConnection(userType, userId, socketId) {
+  if (!userType || !userId || !socketId) return;
+
+  activeSocketConnections.set(`${userType}:${userId}`, socketId);
+  socketToIdentity.set(socketId, { userType, userId });
+}
+
+function removeSocketConnection(socketId) {
+  const identity = socketToIdentity.get(socketId);
+  if (!identity) return;
+
+  activeSocketConnections.delete(`${identity.userType}:${identity.userId}`);
+  socketToIdentity.delete(socketId);
+}
+
+function getSocketIdForUser(userType, userId) {
+  return activeSocketConnections.get(`${userType}:${userId}`) || null;
+}
 
 function InitializeSocket(server) {
   io = new Server(server, {
@@ -31,6 +52,7 @@ function InitializeSocket(server) {
             socketId: socket.id,
           });
 
+          storeSocketConnection(userType, userId, socket.id);
           console.log(`✅ User ${userId} socketId updated`);
         }
 
@@ -39,6 +61,7 @@ function InitializeSocket(server) {
             socketId: socket.id,
           });
 
+          storeSocketConnection(userType, userId, socket.id);
           console.log(`✅ Captain ${userId} socketId updated`);
         }
       } catch (err) {
@@ -77,13 +100,10 @@ function InitializeSocket(server) {
               coordinates: [lng, lat], // MongoDB => [longitude, latitude]
             },
           },
-          { new: true }
+          { new: true },
         );
 
-        console.log(
-          "✅ Captain location saved:",
-          updatedCaptain.location
-        );
+        console.log("✅ Captain location saved:", updatedCaptain.location);
       } catch (err) {
         console.log("Location Update Error:", err.message);
       }
@@ -93,6 +113,7 @@ function InitializeSocket(server) {
     // DISCONNECT
     // =========================
     socket.on("disconnect", () => {
+      removeSocketConnection(socket.id);
       console.log("❌ Socket disconnected:", socket.id);
     });
   });
@@ -104,15 +125,28 @@ function InitializeSocket(server) {
 // SEND MESSAGE
 // =========================
 function sendMessageToSocketId(socketId, eventName, data) {
-    if (!io) return;
+  if (!io || !socketId) return;
 
-    console.log("📨 Emit:", eventName);
-    console.log("Socket:", socketId);
+  console.log("📨 Emit:", eventName);
+  console.log("Socket:", socketId);
 
-    io.to(socketId).emit(eventName, data);
-} 
+  io.to(socketId).emit(eventName, data);
+}
+
+function sendMessageToUser(userType, userId, eventName, data) {
+  if (!io || !userType || !userId) return;
+
+  const socketId = getSocketIdForUser(userType, userId);
+  if (!socketId) {
+    console.log("⚠️ No active socket found for", userType, userId);
+    return;
+  }
+
+  sendMessageToSocketId(socketId, eventName, data);
+}
 
 module.exports = {
   InitializeSocket,
   sendMessageToSocketId,
+  sendMessageToUser,
 };

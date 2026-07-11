@@ -40,6 +40,7 @@ const Home = () => {
   const { user } = useContext(UserDataContext);
   const passanger = useRef(null);
   const userId = user?.id || user?._id;
+  const [acceptedRide, setAcceptedRide] = useState(null);
 
   useEffect(() => {
     if (!isConnected || !userId) return;
@@ -47,31 +48,23 @@ const Home = () => {
     sendMessageToEvent("join", { userType: "user", userId });
   }, [isConnected, userId, sendMessageToEvent]);
 
-  // useEffect(() => {
-  //   const cleanup = receiveMessageFromEvent("ride-confirmed", (ride) => {
-  //     console.log("✅ Ride Confirmed:", ride);
-  //     setWaitingForDriver(true);
-  //   });
-
-  //   return cleanup;
-  // }, [receiveMessageFromEvent]);
-
   useEffect(() => {
-    const handleRideConfirmed = (ride) => {
-      console.log("✅ Ride Confirmed:", ride);
-      setWaitingForDriver(true);
-    };
+    if (!isConnected || !userId) return;
 
-    const cleanup = receiveMessageFromEvent(
-      "ride-confirmed",
-      handleRideConfirmed,
-    );
+    const cleanup = receiveMessageFromEvent("ride-confirmed", (ride) => {
+      console.log("✅ Ride Confirmed:", ride);
+      setAcceptedRide(ride);
+      setVechielFound(false);
+      setVechielPanal(false);
+      setConfirmRidePanal(false);
+      setWaitingForDriver(true);
+    });
 
     return () => {
-      console.log("Cleaning up ride-confirmed listener");
-      cleanup();
+      cleanup?.();
     };
-  }, [receiveMessageFromEvent]);
+  }, [receiveMessageFromEvent, isConnected, userId]);
+
 
   const fetchSuggestions = async (value) => {
     if (!value.trim()) {
@@ -128,6 +121,8 @@ const Home = () => {
   const SubmitHandler = (e) => {
     e.preventDefault();
   };
+
+
 
   useGSAP(() => {
     if (panalOpen) {
@@ -316,7 +311,7 @@ const Home = () => {
               type="text"
               placeholder="Enter your destination"
             />
-
+            
             <button
               type="button"
               onClick={findtrip}
@@ -381,11 +376,17 @@ const Home = () => {
           ref={WaitingForDriverRef}
           className="ref= bg-white fixed bottom-0  w-full p-2 space-y-3 translate-y-full"
         >
-          <WaitingForDriver setWaitingForDriver={setWaitingForDriver} />
+          <WaitingForDriver
+            setWaitingForDriver={setWaitingForDriver}
+            acceptedRide={acceptedRide}
+            pickup={pickupLocation}
+            destination={destination}
+            fare={fare}
+          />
         </div>
       </div>
     </div>
   );
-};
+};;
 
 export default Home;

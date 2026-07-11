@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import axios from "axios";
-import React, { useRef }from "react";
+import React, { useRef } from "react";
 import { useContext } from "react";
-import { CaptainDataContext} from "../context/CaptainContext";
+import { CaptainDataContext } from "../context/CaptainContext";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -14,54 +14,46 @@ import { useState } from "react";
 import { useSocket } from "../context/SocketContext";
 import { useEffect } from "react";
 
-
-
 const CaptainHome = () => {
-    const {
-   sendMessageToEvent,
-   receiveMessageFromEvent,
-   isConnected
-} = useSocket();
-  const {captain} = useContext(CaptainDataContext);
-
-  
+  const { sendMessageToEvent, receiveMessageFromEvent, isConnected } =
+    useSocket();
+  const { captain } = useContext(CaptainDataContext);
 
   const [ridePopUpPanal, setRidePopUpPanal] = useState(false);
-    const [ConfirmridePopUpPanal, setConfirmRidePopUpPanal] = useState(false);
-    const [ride, setRide] = useState(null);
-  const RidePopUpPanalRef =  useRef(null)
-  const ConfirmRidePopUpPanalRef = useRef(null)
+  const [ConfirmridePopUpPanal, setConfirmRidePopUpPanal] = useState(false);
+  const [ride, setRide] = useState(null);
+  const RidePopUpPanalRef = useRef(null);
+  const ConfirmRidePopUpPanalRef = useRef(null);
 
-async function confirmRide() {
-  if (!ride) {
-    console.log("Ride not available");
-    return;
-  }
-  
-  try {
-    const response = await axios.post(
-      `${import.meta.env.VITE_BASE_URL}/rides/confirm`,
-      {
-        rideId: ride._id,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("captainToken")}`,
+  async function confirmRide() {
+    if (!ride) {
+      console.log("Ride not available");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/rides/confirm`,
+        {
+          rideId: ride._id,
         },
-      },
-    );
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("captainToken")}`,
+          },
+        },
+      );
 
-    console.log("✅ Ride confirmed:", response.data);
+      console.log("✅ Ride confirmed:", response.data);
 
-  
-    setRidePopUpPanal(true);
-  } catch (error) {
-    console.log(
-      "❌ Confirm Ride Error:",
-      error.response?.data || error.message,
-    );
+      setRidePopUpPanal(true);
+    } catch (error) {
+      console.log(
+        "❌ Confirm Ride Error:",
+        error.response?.data || error.message,
+      );
+    }
   }
-}
   useGSAP(() => {
     if (ridePopUpPanal) {
       gsap.to(RidePopUpPanalRef.current, {
@@ -89,50 +81,47 @@ async function confirmRide() {
       });
     }
   }, [ConfirmridePopUpPanal]);
-   
 
- useEffect(() => {
-   if (!isConnected || !captain?._id) return;
+  useEffect(() => {
+    const captainId = captain?.id || captain?._id;
+    if (!isConnected || !captainId) return;
 
-   sendMessageToEvent("join", {
-     userType: "captain",
-     userId: captain._id,
-   });
+    sendMessageToEvent("join", {
+      userType: "captain",
+      userId: captainId,
+    });
 
-   const sendLocation = () => {
-     navigator.geolocation.getCurrentPosition(
-       (position) => {
-         sendMessageToEvent("update-location-captain", {
-           userId: captain._id,
-           location: {
-             lat: position.coords.latitude,
-             lng: position.coords.longitude,
-           },
-         });
-       },
-       (err) => console.log(err),
-     );
-   };
+    const sendLocation = () => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          sendMessageToEvent("update-location-captain", {
+            userId: captainId,
+            location: {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            },
+          });
+        },
+        (err) => console.log(err),
+      );
+    };
 
-   sendLocation();
+    sendLocation();
 
-   const interval = setInterval(sendLocation, 10000);
+    const interval = setInterval(sendLocation, 10000);
 
-   const unsubscribe = receiveMessageFromEvent("new-ride", (rideData) => {
-     console.log("🚖 New Ride:", rideData);
+    const unsubscribe = receiveMessageFromEvent("new-ride", (rideData) => {
+      console.log("🚖 New Ride:", rideData);
 
-     setRide(rideData);
-     setRidePopUpPanal(true);
-   });
+      setRide(rideData);
+      setRidePopUpPanal(true);
+    });
 
-   return () => {
-     clearInterval(interval);
-     unsubscribe();
-   };
- }, [isConnected, captain?._id]);
-
-
-
+    return () => {
+      clearInterval(interval);
+      unsubscribe();
+    };
+  }, [isConnected, captain?.id, captain?._id]);
 
   return (
     <div className="w-full h-screen flex flex-col overflow-hidden ">
