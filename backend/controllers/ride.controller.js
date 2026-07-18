@@ -2,6 +2,7 @@ const mapsService = require("../services/maps.service");
 const rideService = require("../services/ride.service");
 const { sendMessageToSocketId } = require("../socketio");
 const { validationResult } = require("express-validator");
+const { sendMessageToUser } = require("../socketio");
 
 module.exports.createRide = async (req, res, next) => {
   try {
@@ -22,7 +23,7 @@ module.exports.createRide = async (req, res, next) => {
       vehicleType,
     });
 
-    ride.otp = "";
+    // ride.otp = "";
 
     const pickupCoordinates = await mapsService.getAddressCoordinate(pickup);
 
@@ -114,9 +115,9 @@ module.exports.confirmRide = async (req, res, next) => {
     });
 
   
-    if (ride.user && ride.user.socketId) {
-      sendMessageToSocketId(ride.user.socketId, "ride-confirmed", ride);
-    }
+ if (ride.user && ride.user.socketId) {
+  sendMessageToSocketId(ride.user.socketId, "ride-confirmed", ride);
+};
 
     return res.status(200).json({
       message: "Ride confirmed successfully",

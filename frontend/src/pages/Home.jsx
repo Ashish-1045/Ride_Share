@@ -48,11 +48,15 @@ const Home = () => {
     sendMessageToEvent("join", { userType: "user", userId });
   }, [isConnected, userId, sendMessageToEvent]);
 
+
   useEffect(() => {
     if (!isConnected || !userId) return;
 
     const cleanup = receiveMessageFromEvent("ride-confirmed", (ride) => {
       console.log("✅ Ride Confirmed:", ride);
+      console.log("Received Ride:", ride);
+      console.log("Received OTP:", ride.otp);
+
       setAcceptedRide(ride);
       setVechielFound(false);
       setVechielPanal(false);

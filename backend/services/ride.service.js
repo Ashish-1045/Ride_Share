@@ -103,7 +103,8 @@ async function confirmRide({ rideId, captain }) {
         { new: true },
       )
       .populate("user")
-      .populate("captain");
+      .populate("captain")
+      .select('+otp');
 
     if (!ride) {
       throw new Error("Ride not found");
