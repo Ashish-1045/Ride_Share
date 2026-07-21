@@ -15,8 +15,10 @@ import { useContext } from "react";
 import { useEffect } from "react";
 import { UserDataContext } from "../context/UserContext";
 import { useSocket } from "../context/SocketContext";
+import {useNavigate} from "react-router-dom";
 
 const Home = () => {
+  const navigate = useNavigate();
   const [pickupLocation, setPickupLocation] = useState("");
   const [destination, setDestination] = useState("");
   const [panalOpen, setPanelOpen] = useState(false);
@@ -42,8 +44,10 @@ const Home = () => {
   const userId = user?.id || user?._id;
   const [acceptedRide, setAcceptedRide] = useState(null);
 
+
   useEffect(() => {
     if (!isConnected || !userId) return;
+
 
     sendMessageToEvent("join", { userType: "user", userId });
   }, [isConnected, userId, sendMessageToEvent]);
@@ -64,10 +68,16 @@ const Home = () => {
       setWaitingForDriver(true);
     });
 
+     const cleanupStarted = receiveMessageFromEvent("ride-started", (ride) => {
+       console.log("✅ Ride Started:", ride);
+       navigate("/Riding", { state: { ride } });
+     });
+    
     return () => {
       cleanup?.();
+      cleanupStarted?.();
     };
-  }, [receiveMessageFromEvent, isConnected, userId]);
+  }, [receiveMessageFromEvent, isConnected, userId, navigate]);
 
 
   const fetchSuggestions = async (value) => {
@@ -206,6 +216,7 @@ const Home = () => {
     }
   }, [waitingForDriver]);
 
+
   async function findtrip() {
     try {
       const response = await axios.get(
@@ -315,7 +326,7 @@ const Home = () => {
               type="text"
               placeholder="Enter your destination"
             />
-            
+
             <button
               type="button"
               onClick={findtrip}
@@ -378,7 +389,7 @@ const Home = () => {
 
         <div
           ref={WaitingForDriverRef}
-          className="ref= bg-white fixed bottom-0  w-full p-2 space-y-3 translate-y-full"
+          className=" bg-white fixed bottom-0 w-full p-2 space-y-3 translate-y-full z-50"
         >
           <WaitingForDriver
             setWaitingForDriver={setWaitingForDriver}
@@ -386,6 +397,8 @@ const Home = () => {
             pickup={pickupLocation}
             destination={destination}
             fare={fare}
+            vehicleType={vehicleType}
+            otp={acceptedRide?.otp}
           />
         </div>
       </div>

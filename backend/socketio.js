@@ -110,6 +110,27 @@ function InitializeSocket(server) {
     });
 
     // =========================
+    // RIDE STARTED (captain -> user)
+    // =========================
+    socket.on("ride-started", (rideData) => {
+      try {
+        console.log("🚀 Ride started event received:", rideData);
+
+        const userId =
+          rideData?.user?._id || rideData?.user || rideData?.userId;
+
+        if (!userId) {
+          console.log("⚠️ No user id found in ride data");
+          return;
+        }
+
+        sendMessageToUser("user", userId, "ride-started", rideData);
+      } catch (err) {
+        console.log("Ride Started Error:", err.message);
+      }
+    });
+
+    // =========================
     // DISCONNECT
     // =========================
     socket.on("disconnect", () => {

@@ -116,8 +116,45 @@ async function confirmRide({ rideId, captain }) {
   }
 }
 
+async function startRide({ rideId,otp,captain }) {
+  try {
+    if (!rideId) {
+      throw new Error("rideId is required");
+    }
+
+    const ride = await rideModel
+      .findByIdAndUpdate(
+        rideId,
+
+        {
+          status: "in-progress",
+          captain,
+        },
+        { new: true },
+      )
+      .populate("user")
+      .populate("captain")
+      .select('+otp');
+
+    if (!ride) {
+      throw new Error("Ride not found");
+    }
+
+    return ride;
+  } catch (error) {
+    throw error;
+  }
+
+  sendMessageToSocketId(ride.user.socketId, {
+    event: "ride-started",
+    data: ride,
+  });
+} 
+  
+
 module.exports = {
   getfare,
   createRide,
   confirmRide,
+  startRide,
 };

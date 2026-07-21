@@ -1,3 +1,4 @@
+
 import React from "react";
 import Car from "../assets/Car.png";
 
@@ -17,6 +18,7 @@ const WaitingForDriver = ({
   const plateNumber = captain?.vehicle?.plate || "N/A";
   const vehicleType = captain?.vehicle?.vehicleType || "Car";
   const vehicleColor = captain?.vehicle?.color || "";
+  const otp = acceptedRide?.otp;
 
   const fareAmount =
     acceptedRide?.fare ??
@@ -50,10 +52,23 @@ const WaitingForDriver = ({
           <p className="font-semibold text-gray-700">
             {vehicleColor ? `${vehicleColor} ${vehicleType}` : vehicleType}
           </p>
-
-          
         </div>
       </div>
+
+      {/* OTP */}
+      {otp && (
+        <div className="mx-4 mb-4 bg-yellow-50 border-2 border-yellow-400 rounded-xl px-4 py-3 flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-600 font-medium">
+              Share this OTP with your driver
+            </p>
+            <h2 className="text-3xl font-bold tracking-widest text-gray-900">
+              {otp}
+            </h2>
+          </div>
+          <i className="ri-shield-keyhole-line text-3xl text-yellow-600"></i>
+        </div>
+      )}
 
       <div>
         {/* Pickup */}

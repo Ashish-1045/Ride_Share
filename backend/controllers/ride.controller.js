@@ -3,7 +3,6 @@ const rideService = require("../services/ride.service");
 const { sendMessageToSocketId } = require("../socketio");
 const { validationResult } = require("express-validator");
 const { sendMessageToUser } = require("../socketio");
-
 module.exports.createRide = async (req, res, next) => {
   try {
     const errors = validationResult(req);
@@ -27,7 +26,6 @@ module.exports.createRide = async (req, res, next) => {
 
     const pickupCoordinates = await mapsService.getAddressCoordinate(pickup);
 
-  
     const captainInRadius = await mapsService.getCaptainInTheRadius(
       pickupCoordinates.lat,
       pickupCoordinates.lng,
@@ -99,6 +97,7 @@ module.exports.getfare = async (req, res, next) => {
   }
 };
 
+
 module.exports.confirmRide = async (req, res, next) => {
   try {
     const errors = validationResult(req);
@@ -114,13 +113,46 @@ module.exports.confirmRide = async (req, res, next) => {
       captain: req.captain._id,
     });
 
-  
- if (ride.user && ride.user.socketId) {
-  sendMessageToSocketId(ride.user.socketId, "ride-confirmed", ride);
-};
+    if (ride.user && ride.user._id) {
+      sendMessageToUser(
+        "user",
+        ride.user._id.toString(),
+        "ride-confirmed",
+        ride,
+      );
+    }
 
     return res.status(200).json({
       message: "Ride confirmed successfully",
+      ride,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+module.exports.startRide = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { rideId, otp } = req.body;
+
+  try {
+    const ride = await rideService.startRide({
+      rideId,
+      captain: req.captain._id,
+      otp,
+    });
+
+    if (ride.user && ride.user._id) {
+      sendMessageToUser("user", ride.user._id.toString(), "ride-started", ride);
+    }
+
+    return res.status(200).json({
+      message: "Ride started successfully",
       ride,
     });
   } catch (error) {
