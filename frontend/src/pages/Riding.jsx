@@ -1,11 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import homeImg from "../assets/HomeImg.gif";
-import { Link, useLocation } from "react-router-dom";
-
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useSocket } from "../context/SocketContext";
 const Riding = () => {
   const location = useLocation();
   const ride = location.state?.ride;
+  const { receiveMessageFromEvent } = useSocket();
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const cleanup = receiveMessageFromEvent("ride-ended", (rideData) => {
+      console.log("📍 Ride ended:", rideData);
+      navigate("/home");
+    });
+
+  return () => cleanup?.();
+}, [receiveMessageFromEvent, navigate]);
   return (
     <div className="w-full h-screen flex  flex flex-col overflow-hidden">
       <Link

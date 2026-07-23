@@ -35,7 +35,12 @@ const CaptainRiding = () => {
    }
  };
   return (
-    <div className="w-full h-screen flex flex-col overflow-hidden ">
+    <div
+      onClick={() => {
+        setFinishRidePanal(true);
+      }}
+      className="w-full h-screen flex flex-col overflow-hidden "
+    >
       <div className="fixed  top-0 left-0 w-full  flex items-center justify-between px-4 py-3">
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
@@ -95,7 +100,12 @@ const CaptainRiding = () => {
         ref={FinishRidePanalRef}
         className=" bg-gray-100 fixed bottom-0  w-full p-2 space-y-3  translate-y-full"
       >
-        <FinishRide ridedata={ride} setFinishRidePanal={setFinishRidePanal} />
+        <FinishRide 
+        ride={ride}
+        setFinishRidePanal={setFinishRidePanal}
+        finishRide={handleCompleteRide}
+
+        />
       </div>
     </div>
   );

@@ -150,11 +150,44 @@ async function startRide({ rideId,otp,captain }) {
     data: ride,
   });
 } 
-  
+
+async function endRide({ rideId, captain }) {
+  try {
+    if (!rideId) {
+      throw new Error("rideId is required");
+    } 
+
+   const ride = await rideModel
+     .findOneAndUpdate(
+       {
+         _id: rideId,
+         captain,
+       },
+       {
+         status: "completed",
+       },
+       { new: true },
+     )
+     .populate("user")
+     .populate("captain")
+     .select("+otp");
+
+     
+    if (!ride) {
+      throw new Error("Ride not found");
+    }
+
+    return ride;
+  } catch (error) {
+    throw error;
+  }
+}
 
 module.exports = {
   getfare,
   createRide,
   confirmRide,
   startRide,
-};
+  endRide,
+};  
+

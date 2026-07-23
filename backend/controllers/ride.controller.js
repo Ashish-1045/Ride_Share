@@ -159,3 +159,27 @@ module.exports.startRide = async (req, res, next) => {
     next(error);
   }
 };
+
+module.exports.endRide = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  } 
+
+  const { rideId } = req.body;
+
+  try {
+    const ride = await rideService.endRide({
+      rideId,
+      captain: req.captain._id,
+    });
+
+    sendMessageToUser("user", ride.user._id.toString(), "ride-ended", ride); 
+    return res.status(200).json({
+      message: "Ride ended successfully",
+      ride,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

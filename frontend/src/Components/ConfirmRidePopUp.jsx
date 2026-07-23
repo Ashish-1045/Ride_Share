@@ -109,7 +109,6 @@ const ConfirmRidePopUp  = (props) => {
           to="/captainRiding"
           onClick={() => {
             props.setConfirmRidePopUpPanal(false);
-            props.setRidePopUpPanal(true);
            navigate("/captainRiding", { state: { ride: props.ride } });
           }}
           className="flex justify-center bg-green-400 text-black py-3 px-26 rounded-lg text-xl font-semibold hover:bg-green-600 transition duration-300 w-full mt-4"
