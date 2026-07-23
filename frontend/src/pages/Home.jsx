@@ -274,9 +274,9 @@ const Home = () => {
       </div>
       <div className="w-full h-full">
         <img
-          src={homeImg}
+          src="https://user-images.githubusercontent.com/..."
           alt="uber map"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-center "
         />
       </div>
 

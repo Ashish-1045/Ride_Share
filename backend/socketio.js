@@ -110,6 +110,88 @@ function InitializeSocket(server) {
     });
 
     // =========================
+    // SEND LOCATION (Real-time tracking)
+    // =========================
+    socket.on("send-location", (data) => {
+      try {
+        console.log("📍 Location received:", {
+          userId: data.userId,
+          userType: data.userType,
+          latitude: data.latitude,
+          longitude: data.longitude,
+        });
+
+        const { userId, userType, latitude, longitude, timestamp } = data;
+
+        if (!userId || !userType || latitude == null || longitude == null) {
+          return socket.emit("error", {
+            message: "Invalid location data",
+          });
+        }
+
+        // Broadcast location to all connected sockets
+        // This sends to everyone who's listening
+        io.emit("location-update", {
+          userId,
+          userType,
+          latitude,
+          longitude,
+          timestamp: timestamp || new Date().toISOString(),
+        });
+
+        console.log(`✅ Location broadcasted for ${userType} ${userId}`);
+      } catch (err) {
+        console.log("Send Location Error:", err.message);
+      }
+    });
+
+    // =========================
+    // CAPTAIN LOCATION UPDATE (for ride tracking)
+    // =========================
+    socket.on("captain-location", (data) => {
+      try {
+        console.log("🚗 Captain location update:", data);
+
+        const { userId, latitude, longitude } = data;
+
+        if (!userId || latitude == null || longitude == null) {
+          return socket.emit("error", {
+            message: "Invalid captain location data",
+          });
+        }
+
+        // Update captain location in database
+        captainModel
+          .findByIdAndUpdate(
+            userId,
+            {
+              location: {
+                type: "Point",
+                coordinates: [longitude, latitude],
+              },
+            },
+            { new: true },
+          )
+          .then((updatedCaptain) => {
+            console.log("✅ Captain location saved:", updatedCaptain.location);
+
+            // Broadcast to all users waiting for this captain
+            io.emit("captain-location", {
+              captainId: userId,
+              latitude,
+              longitude,
+              timestamp: new Date().toISOString(),
+            });
+          })
+          .catch((err) => {
+            console.log("Database update error:", err.message);
+          });
+      } catch (err) {
+        console.log("Captain Location Error:", err.message);
+      }
+    });
+
+    // =========================
     // RIDE STARTED (captain -> user)
     // =========================
     socket.on("ride-started", (rideData) => {
