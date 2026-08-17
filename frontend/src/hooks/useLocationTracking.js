@@ -51,7 +51,22 @@ const useLocationTracking = (userId, userType = "user") => {
     });
 
     newSocket.on("captain-location", (data) => {
+      // older event shape: { latitude, longitude }
       setCaptainLocation({ lat: data.latitude, lng: data.longitude });
+    });
+
+    // Newer backend emits `captain-location-update` with shape: { userId, location: { lat, lng } }
+    newSocket.on("captain-location-update", (data) => {
+      try {
+        const loc = data?.location || data;
+        if (!loc) return;
+        setCaptainLocation({
+          lat: loc.lat ?? loc.latitude,
+          lng: loc.lng ?? loc.longitude,
+        });
+      } catch (err) {
+        console.error("captain-location-update handler error:", err);
+      }
     });
 
     setSocket(newSocket);
@@ -65,6 +80,7 @@ const useLocationTracking = (userId, userType = "user") => {
   const sendLocation = useCallback(
     (latitude, longitude) => {
       if (socket && isConnected) {
+        // general broadcast (used by backend to emit `location-update`)
         socket.emit("send-location", {
           userId,
           userType,
@@ -72,6 +88,15 @@ const useLocationTracking = (userId, userType = "user") => {
           longitude,
           timestamp: new Date().toISOString(),
         });
+
+        // For captains, also emit the specialized event so backend can
+        // persist and broadcast `captain-location-update` to waiting users.
+        if (userType === "captain") {
+          socket.emit("update-location-captain", {
+            userId,
+            location: { lat: latitude, lng: longitude },
+          });
+        }
       }
     },
     [socket, isConnected, userId, userType],

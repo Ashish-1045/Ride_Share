@@ -116,41 +116,41 @@ async function confirmRide({ rideId, captain }) {
   }
 }
 
-async function startRide({ rideId,otp,captain }) {
+
+
+async function startRide({ rideId, otp, captain }) {
   try {
-    if (!rideId) {
-      throw new Error("rideId is required");
-    }
+    if (!rideId) throw new Error("rideId is required");
+    if (!otp) throw new Error("OTP is required");
 
     const ride = await rideModel
-      .findByIdAndUpdate(
-        rideId,
-
-        {
-          status: "in-progress",
-          captain,
-        },
-        { new: true },
-      )
+      .findById(rideId)
       .populate("user")
       .populate("captain")
-      .select('+otp');
+      .select("+otp");
 
-    if (!ride) {
-      throw new Error("Ride not found");
+    if (!ride) throw new Error("Ride not found");
+    if (ride.status !== "accepted") throw new Error("Ride is not accepted");
+    if (ride.captain._id.toString() !== captain.toString())
+      throw new Error("Unauthorized");
+
+    console.log("========== START RIDE DEBUG ==========");
+    console.log("OTP from DB:", JSON.stringify(ride.otp));
+    console.log("OTP from Frontend:", JSON.stringify(otp));
+    console.log("=======================================");
+
+    if (String(ride.otp).trim() !== String(otp).trim()) {
+      throw new Error("Invalid OTP");
     }
+
+    ride.status = "in-progress";
+    await ride.save();
 
     return ride;
   } catch (error) {
     throw error;
   }
-
-  sendMessageToSocketId(ride.user.socketId, {
-    event: "ride-started",
-    data: ride,
-  });
-} 
-
+}
 async function endRide({ rideId, captain }) {
   try {
     if (!rideId) {

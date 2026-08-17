@@ -51,10 +51,11 @@ router.post(
   ridecontroller.confirmRide,
 );
 
-router.get(
+router.post(
   "/start-ride",
   authCaptain,
-  query("rideId").isMongoId().withMessage("Invalid Ride ID"),
+  body("rideId").isMongoId().withMessage("Invalid Ride ID"),
+  body("otp").isLength({ min: 6, max: 6 }).withMessage("Invalid OTP"),
   ridecontroller.startRide,
 );
 

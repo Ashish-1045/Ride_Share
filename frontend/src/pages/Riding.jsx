@@ -1,21 +1,35 @@
 import React, { useEffect } from "react";
 import homeImg from "../assets/HomeImg.gif";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useSocket } from "../context/SocketContext";
+import LiveTracking from "../Components/LiveTracking";
+import useLocationTracking from "../hooks/useLocationTracking";
+
 const Riding = () => {
   const location = useLocation();
   const ride = location.state?.ride;
-  const { receiveMessageFromEvent } = useSocket();
   const navigate = useNavigate();
 
+  const userId = ride?.user?._id || ride?.userId;
+
+  const { userLocation, captainLocation, socket } = useLocationTracking(
+    userId,
+    "user",
+  );
+
   useEffect(() => {
-    const cleanup = receiveMessageFromEvent("ride-ended", (rideData) => {
+    if (!socket) return;
+
+    const handler = (rideData) => {
       console.log("📍 Ride ended:", rideData);
       navigate("/home");
-    });
+    };
 
-  return () => cleanup?.();
-}, [receiveMessageFromEvent, navigate]);
+    socket.on("ride-ended", handler);
+
+    return () => {
+      socket.off("ride-ended", handler);
+    };
+  }, [socket, navigate]);
   return (
     <div className="w-full h-screen flex  flex flex-col overflow-hidden">
       <Link
@@ -26,10 +40,10 @@ const Riding = () => {
       </Link>
 
       <div className="w-full h-1/2 ">
-        <img
-          src={homeImg}
-          alt="uber map"
+        <LiveTracking
           className="w-full h-full object-cover"
+          userLocation={userLocation}
+          captainLocation={captainLocation}
         />
       </div>
 

@@ -5,10 +5,13 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
 import "remixicon/fonts/remixicon.css";
+
+
+import LiveTracking from "../Components/LiveTracking";
 import LocationSearchPanel from "../Components/LocationSearchPanel";
 import VechielPanal from "../Components/VechielPanal";
 import ConfirmRidePanal from "../Components/ConfirmRidePanal";
-import homeImg from "../assets/HomeImg.gif";
+// import homeImg from "../assets/HomeImg.gif";
 import LookingForDriver from "../Components/LookingForDriver";
 import WaitingForDriver from "../Components/WaitingForDriver";
 import { useContext } from "react";
@@ -28,6 +31,8 @@ const Home = () => {
   const WaitingForDriverRef = useRef(null);
   const confirmRidePanalRef = useRef(null);
   const [confirmRidePanal, setConfirmRidePanal] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
+  const [captainLocation, setCaptainLocation] = useState(null);
   const panalClosRef = useRef(null);
   const [vechielPanal, setVechielPanal] = useState(false);
   const [vechielFound, setVechielFound] = useState(false);
@@ -52,7 +57,65 @@ const Home = () => {
     sendMessageToEvent("join", { userType: "user", userId });
   }, [isConnected, userId, sendMessageToEvent]);
 
+ useEffect(() => {
+   if (!navigator.geolocation) return;
 
+   const watchId = navigator.geolocation.watchPosition(
+     (position) => {
+       const location = {
+         lat: position.coords.latitude,
+         lng: position.coords.longitude,
+       };
+
+       console.log("User Location:", location);
+
+       setUserLocation(location);
+     },
+     (error) => {
+       console.log("Location Error:", error);
+     },
+     {
+       enableHighAccuracy: true,
+       timeout: 20000,
+       maximumAge: 0,
+     },
+   );
+
+   return () => {
+     navigator.geolocation.clearWatch(watchId);
+   };
+ }, []);
+
+
+useEffect(() => {
+
+  if(!isConnected) return;
+
+  const cleanup = receiveMessageFromEvent(
+    "captain-location-update",
+    (data)=>{
+      console.log("Captain Location:",data.location);
+      setCaptainLocation(data.location);
+    }
+  );
+
+  return ()=>{
+    cleanup?.();
+  };
+
+},[isConnected, receiveMessageFromEvent]);
+
+
+  useEffect(() => {
+    const cleanup = receiveMessageFromEvent(
+      "captain-location-update",
+      (data) => {
+        setCaptainLocation(data.location);
+      },
+    );
+
+    return () => cleanup?.();
+  }, []);
   useEffect(() => {
     if (!isConnected || !userId) return;
 
@@ -264,7 +327,7 @@ const Home = () => {
   }
 
   return (
-    <div className=" w-screen h-screen relative overflow-hidden">
+    <div className=" relative w-screen h-screen overflow-hidden">
       <div>
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
@@ -272,16 +335,21 @@ const Home = () => {
           className="w-16 absolute top-5 left-5"
         />
       </div>
-      <div className="w-full h-full">
+      {/* <div className="w-full h-full">
         <img
           src="https://user-images.githubusercontent.com/..."
           alt="uber map"
-          className="w-full h-full object-cover object-center "
+          className="w-full h-full object-cover object-center"
+        />
+      </div> */}
+      <div className="absolute inset-0">
+        <LiveTracking
+          userLocation={userLocation}
+          captainLocation={captainLocation}
         />
       </div>
-
-      <div className=" w-full h-screen flex flex-col justify-end absolute bottom-0  ">
-        <div className="h[30%] p-5 bg-white bottom-0 w-full relative">
+      <div className="absolute inset-0 flex flex-col justify-end z-10">
+        <div className="h-[40%] p-5 bg-white w-full relative rounded-t-3xl pointer-events-auto">
           <h5
             onClick={() => setPanelOpen(false)}
             ref={panalClosRef}
@@ -292,7 +360,7 @@ const Home = () => {
           <h3 className="text-3xl font-semibold">Find a trip </h3>
 
           <form onSubmit={SubmitHandler}>
-            <div className="absolute left-8 top-[33%] flex flex-col items-center">
+            <div className="absolute left-8 top-[30%] flex flex-col items-center">
               <div className="w-1 h-16 bg-gray-700 rounded-full"></div>
 
               <div className="w-1.5 h-1.5 bg-gray-700 rounded-full mt-2"></div>

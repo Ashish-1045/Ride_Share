@@ -22,7 +22,7 @@ const FinishRide = (props) => {
 
       if (response.status === 200) {
         props.setFinishRidePanal(false);
-        props.setRidePopupPanal(false);
+        // props.setRidePopupPanal(false);
         navigate("/CaptainHome");
       }
     } catch (error) {

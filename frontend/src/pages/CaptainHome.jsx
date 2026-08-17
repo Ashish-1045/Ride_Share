@@ -13,18 +13,22 @@ import ConfirmRidePopUp from "../Components/ConfirmRidePopUp";
 import { useState } from "react";
 import { useSocket } from "../context/SocketContext";
 import { useEffect } from "react";
+import LiveTracking from "../Components/LiveTracking";
+
 
 const CaptainHome = () => {
   const { sendMessageToEvent, receiveMessageFromEvent, isConnected } =
     useSocket();
   const { captain } = useContext(CaptainDataContext);
-
+  const [userLocation, setUserLocation] = useState(null);
+  const [captainLocation, setCaptainLocation] = useState(null);
   const [ridePopUpPanal, setRidePopUpPanal] = useState(false);
   const [ConfirmridePopUpPanal, setConfirmRidePopUpPanal] = useState(false);
   const [ride, setRide] = useState(null);
   const RidePopUpPanalRef = useRef(null);
   const ConfirmRidePopUpPanalRef = useRef(null);
 
+  
   async function confirmRide() {
     if (!ride) {
       console.log("Ride not available");
@@ -91,24 +95,32 @@ const CaptainHome = () => {
       userId: captainId,
     });
 
-    const sendLocation = () => {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          sendMessageToEvent("update-location-captain", {
-            userId: captainId,
-            location: {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            },
-          });
-        },
-        (err) => console.log(err),
-      );
-    };
+  const watchId = navigator.geolocation.watchPosition(
+    (position) => {
+      const location = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      };
 
-    sendLocation();
+      setCaptainLocation(location);
 
-    const interval = setInterval(sendLocation, 10000);
+      sendMessageToEvent("update-location-captain", {
+        userId: captainId,
+        location,
+      });
+    },
+    (error) => {
+      console.log(error);
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: 10000,
+    },
+  );
+
+   
+
 
     const unsubscribe = receiveMessageFromEvent("new-ride", (rideData) => {
       console.log("🚖 New Ride:", rideData);
@@ -116,11 +128,17 @@ const CaptainHome = () => {
       setRide(rideData);
       setRidePopUpPanal(true);
     });
-
-    return () => {
-      clearInterval(interval);
-      unsubscribe();
-    };
+    const unsubscribeLocation = receiveMessageFromEvent(
+      "user-location-update",
+      (data) => {
+        setUserLocation(data.location);
+      },
+    );
+return () => {
+  navigator.geolocation.clearWatch(watchId);
+  unsubscribe();
+  unsubscribeLocation();
+};
   }, [isConnected, captain?.id, captain?._id]);
 
   return (
@@ -141,10 +159,9 @@ const CaptainHome = () => {
       </div>
 
       <div className="w-full h-3/5 overflow-hidden ">
-        <img
-          src="https://user-images.githubusercontent.com/6416095/52931260-c6bb5e80-3371-11e9-9d46-83f7d1389d18.gif"
-          alt="uber map"
-          className="w-full h-full object-cover object-center"
+        <LiveTracking
+          userLocation={userLocation}
+          captainLocation={captainLocation}
         />
       </div>
 
@@ -170,6 +187,7 @@ const CaptainHome = () => {
         <ConfirmRidePopUp
           ride={ride}
           setConfirmRidePopUpPanal={setConfirmRidePopUpPanal}
+          setRidePopUpPanal={setRidePopUpPanal}
           confirmRide={confirmRide}
         />
       </div>
@@ -178,3 +196,7 @@ const CaptainHome = () => {
 };
 
 export default CaptainHome;
+
+
+
+

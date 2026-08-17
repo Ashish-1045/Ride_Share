@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -6,111 +5,136 @@ import {
   Polyline,
   useMap,
 } from "react-leaflet";
+
 import L from "leaflet";
+import { useEffect } from "react";
 import "leaflet/dist/leaflet.css";
 
-// ------------------------------------------------------------------
-// Custom marker icons (no external image files or API key needed)
-// ------------------------------------------------------------------
-const userIcon = new L.DivIcon({
-  html: `<div style="
-    width:20px;height:20px;border-radius:50%;
-    background:#4285F4;border:3px solid #fff;
-    box-shadow:0 0 4px rgba(0,0,0,0.4);
-  "></div>`,
-  className: "",
-  iconSize: [20, 20],
-  iconAnchor: [10, 10],
+// ---------------- User Icon ----------------
+
+const userIcon = new L.Icon({
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+
+  iconSize: [25, 41],
+
+  iconAnchor: [12, 41],
 });
+
+// ---------------- Captain Icon ----------------
 
 const captainIcon = new L.DivIcon({
-  html: `<div style="
-    width:24px;height:24px;border-radius:50%;
-    background:#FF6B6B;border:3px solid #fff;
-    box-shadow:0 0 4px rgba(0,0,0,0.4);
-    display:flex;align-items:center;justify-content:center;
-    font-size:12px;
-  ">🚗</div>`,
+  html: `
+    <div style="
+      width:32px;
+      height:32px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:22px;
+    ">
+      🚗
+    </div>
+  `,
+
   className: "",
-  iconSize: [24, 24],
-  iconAnchor: [12, 12],
+
+  iconSize: [32, 32],
+
+  iconAnchor: [16, 16],
 });
 
-// ------------------------------------------------------------------
-// Helper component: re-centers the map whenever `center` changes
-// (MapContainer's `center` prop only applies on first render)
-// ------------------------------------------------------------------
-const RecenterMap = ({ center }) => {
+// ---------------- Change Map View ----------------
+
+function ChangeView({ center }) {
   const map = useMap();
+
   useEffect(() => {
     if (center) {
-      map.setView(center, map.getZoom(), { animate: true });
-    }
-  }, [center, map]);
-  return null;
-};
-
-const DEFAULT_CENTER = [28.6139, 77.209]; // Delhi fallback
-
-const toLatLng = (loc) => (loc ? [loc.lat, loc.lng] : null);
-
-const LiveTracking = ({ userLocation, captainLocation }) => {
-  const [routePath, setRoutePath] = useState([]);
-
-  // Build a simple route trail from the user's own location updates
-  useEffect(() => {
-    if (userLocation) {
-      setRoutePath((prev) => {
-        const last = prev[prev.length - 1];
-        const point = toLatLng(userLocation);
-        if (
-          !last ||
-          Math.abs(last[0] - point[0]) > 0.0001 ||
-          Math.abs(last[1] - point[1]) > 0.0001
-        ) {
-          return [...prev, point];
-        }
-        return prev;
+      map.setView(center, 16, {
+        animate: true,
       });
     }
-  }, [userLocation]);
+  }, [center, map]);
 
-  const center =
-    toLatLng(userLocation) || toLatLng(captainLocation) || DEFAULT_CENTER;
+  return null;
+}
+
+// ---------------- Live Tracking ----------------
+
+export default function LiveTracking({ userLocation, captainLocation }) {
+  console.log("User Location:", userLocation);
+
+  console.log("Captain Location:", captainLocation);
+
+  // Safe validation
+
+  const hasUserLocation =
+    userLocation?.lat !== undefined && userLocation?.lng !== undefined;
+
+  const hasCaptainLocation =
+    captainLocation?.lat !== undefined && captainLocation?.lng !== undefined;
+
+  // Default center
+
+  const center = hasUserLocation
+    ? [userLocation.lat, userLocation.lng]
+    : hasCaptainLocation
+      ? [captainLocation.lat, captainLocation.lng]
+      : [23.2599, 77.4126];
 
   return (
-    <div className="w-full h-full rounded-lg overflow-hidden shadow-lg">
+    <div className="w-full h-full">
       <MapContainer
         center={center}
-        zoom={15}
-        style={{ width: "100%", height: "100%", minHeight: "400px" }}
-        zoomControl={true}
+        zoom={16}
+        className="w-full h-full"
+        zoomControl={false}
       >
-        {/* Free OpenStreetMap tiles — no API key required */}
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        <RecenterMap center={center} />
+        <ChangeView center={center} />
 
-        {userLocation && (
-          <Marker position={toLatLng(userLocation)} icon={userIcon} />
+        {/* USER LOCATION */}
+
+        {hasUserLocation && (
+          <Marker
+            position={[userLocation.lat, userLocation.lng]}
+            icon={userIcon}
+          />
         )}
 
-        {captainLocation && (
-          <Marker position={toLatLng(captainLocation)} icon={captainIcon} />
+        {/* CAPTAIN LOCATION */}
+
+        {hasCaptainLocation && (
+          <Marker
+            key={`${captainLocation?.lat}-${captainLocation?.lng}`}
+            position={[captainLocation.lat, captainLocation.lng]}
+            icon={captainIcon}
+          />
         )}
 
-        {routePath.length > 1 && (
+        {/* ROUTE */}
+
+        {hasUserLocation && hasCaptainLocation && (
           <Polyline
-            positions={routePath}
-            pathOptions={{ color: "#4285F4", weight: 4, opacity: 0.7 }}
+            positions={[
+              [userLocation.lat, userLocation.lng],
+
+              [captainLocation.lat, captainLocation.lng],
+            ]}
+            pathOptions={{
+              color: "#000",
+
+              weight: 5,
+            }}
           />
         )}
       </MapContainer>
     </div>
   );
-};
-
-export default LiveTracking;
+}

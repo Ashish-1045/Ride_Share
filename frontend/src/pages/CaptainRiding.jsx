@@ -5,13 +5,18 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useState } from "react";
 import FinishRide from "../Components/FinishRide";
-import { useSocket } from "../context/SocketContext";
+import useLocationTracking from "../hooks/useLocationTracking";
+import LiveTracking from "../Components/LiveTracking";
+
 const CaptainRiding = () => {
   const location = useLocation();
   const ride = location.state?.ride;
   const [FinishRidePanal, setFinishRidePanal] = useState(false);
   const FinishRidePanalRef = useRef(null);
-  const { sendMessageToEvent } = useSocket();
+  const captainId = ride?.captain?._id || ride?.captainId || null;
+
+  const { userLocation, captainLocation, socket, isConnected } =
+    useLocationTracking(captainId, "captain");
 
   useGSAP(() => {
     if (FinishRidePanal) {
@@ -27,13 +32,23 @@ const CaptainRiding = () => {
     }
   }, [FinishRidePanal]);
 
- const handleCompleteRide = (e) => {
-   e.stopPropagation();
-   if (ride) {
-     console.log("📍 Sending ride data to user:", ride);
-     sendMessageToEvent("ride-started", ride);
-   }
- };
+  const handleCompleteRide = (e) => {
+    e.stopPropagation();
+    if (ride) {
+      console.log("📍 Emitting ride-ended to server:", ride);
+      try {
+        if (socket && socket.connected) {
+          socket.emit("ride-ended", ride);
+        } else {
+          // fallback: emit generic message so backend can route if listening
+          console.warn("Socket not connected — ride-ended not sent");
+        }
+      } catch (err) {
+        console.error("Error emitting ride-ended:", err);
+      }
+      setFinishRidePanal(false);
+    }
+  };
   return (
     <div
       onClick={() => {
@@ -56,13 +71,13 @@ const CaptainRiding = () => {
         </Link>
       </div>
 
-      <div className="w-full h-5/4 overflow-hidden ">
-        <img
-          src="https://user-images.githubusercontent.com/6416095/52931260-c6bb5e80-3371-11e9-9d46-83f7d1389d18.gif"
-          alt="uber map"
-          className="w-full h-full object-cover object-center"
-        />
-      </div>
+      <div className="w-full h-5/4 ">
+             <LiveTracking
+               className="w-full h-full object-cover"
+               userLocation={userLocation}
+               captainLocation={captainLocation}
+             />
+           </div>
 
       <div
         onClick={() => {
@@ -100,11 +115,10 @@ const CaptainRiding = () => {
         ref={FinishRidePanalRef}
         className=" bg-gray-100 fixed bottom-0  w-full p-2 space-y-3  translate-y-full"
       >
-        <FinishRide 
-        ride={ride}
-        setFinishRidePanal={setFinishRidePanal}
-        finishRide={handleCompleteRide}
-
+        <FinishRide
+          ride={ride}
+          setFinishRidePanal={setFinishRidePanal}
+          finishRide={handleCompleteRide}
         />
       </div>
     </div>
