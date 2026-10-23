@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import homeImg from "../assets/HomeImg.gif";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import LiveTracking from "../Components/LiveTracking";
 import useLocationTracking from "../hooks/useLocationTracking";

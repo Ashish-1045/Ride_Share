@@ -15,7 +15,7 @@ const CaptainRiding = () => {
   const FinishRidePanalRef = useRef(null);
   const captainId = ride?.captain?._id || ride?.captainId || null;
 
-  const { userLocation, captainLocation, socket, isConnected } =
+  const { userLocation, captainLocation, socket,  } =
     useLocationTracking(captainId, "captain");
 
   useGSAP(() => {
@@ -126,3 +126,5 @@ const CaptainRiding = () => {
 };
 
 export default CaptainRiding;
+
+

@@ -361,7 +361,8 @@ function InitializeSocket(server) {
           },
 
           {
-            new: true,
+            // new: true,
+            returnDocument: "after",
           },
         );
 

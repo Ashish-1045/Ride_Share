@@ -93,10 +93,11 @@ export default function LiveTracking({ userLocation, captainLocation }) {
         zoomControl={false}
       >
         <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=cb1_4t5t_1_58ce9a7e7b7d4834ca8669c2"
+          subdomains="abcd"
+          maxZoom={20}
         />
-
         <ChangeView center={center} />
 
         {/* USER LOCATION */}
