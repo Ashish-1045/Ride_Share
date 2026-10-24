@@ -18,7 +18,7 @@ connectToDB()
 app.use(
   cors({
     origin: [
-      "https://ride-share-ten-khaki.vercel.app/",
+      "https://ride-share-co4qsdvcq-ashish-maheshwaris-projects-ac4f06a6.vercel.app",
       "http://localhost:3000",
     ],
     credentials: true,
